@@ -1,4 +1,4 @@
-public abstract class Field{
+public abstract class Field extends View{
   final protected Vec2 real_field_size = new Vec2(2500, 1600); //実際のフィールドサイズ(単位はmm) w*h
   protected Vec2 local_field_size = new Vec2(1000, 640);;
   protected Vec2 field_pos= new Vec2(195, 40);
@@ -11,4 +11,10 @@ public abstract class Field{
   }
   
    protected abstract void draw();
+}
+
+public abstract class View{
+  protected Vec2 view_size = new Vec2(width-sideBar_width,height);
+  protected Vec2 view_point = new Vec2(sideBar_width,height);
+
 }
