@@ -24,9 +24,9 @@ void setup() {
   play_field = new PlayField();
   
   //ロボットの生成
-    robot1 = new Robot(new Vec2(100,800));
-    robot2 = new Robot(new Vec2(300,100));
-    robot3 = new Robot(new Vec2(300,1500));
+    robot1 = new Robot(new Vec2(100,800),90);
+    robot2 = new Robot(new Vec2(300,100),180);
+    robot3 = new Robot(new Vec2(300,1500),0);
   
   //ボタン関係の描画
   DrawSideButton();
