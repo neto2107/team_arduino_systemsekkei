@@ -40,10 +40,7 @@ public class Robot extends Field {
     fill(0, 0, 0);
     textSize(20);
     text (Integer.toString(id), -5, -13, 50, 50);
-    
-
     rotate(angle);//座標軸を回転させる
-    line(0,0,0,-30);
     fill(c1);
     arc(0,0,local_sensing_range,local_sensing_range,Utils.deg_to_rad(-105),Utils.deg_to_rad(-75));
     popMatrix();
