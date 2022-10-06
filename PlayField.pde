@@ -10,8 +10,8 @@ public class PlayField extends Field {
     left_goal_line = new Vec4(field_pos.x, 143, field_pos.x, 143 + 475);
     right_goal_line = new Vec4(field_pos.x + local_field_size.x, 143, field_pos.x + local_field_size.x, 143+475);
     //ロボットのインスタンス生成
-    
-    ar = new Arrow(new Vec2(300,300),new Vec2(400,400),0,0,255);
+
+    ar = new Arrow(new Vec2(300, 300), new Vec2(400, 400), 0, 0, 255);
   }
 
   public void draw() {
@@ -27,15 +27,11 @@ public class PlayField extends Field {
     line(right_goal_line.x1, right_goal_line.y1, right_goal_line.x2, right_goal_line.y2);
     stroke(0, 0, 0);
     strokeWeight(1);
-    
+
     //ロボットの描画
     robot1.draw();
     robot2.draw();
     robot3.draw();
     ar.draw();
   }
-  
- 
-
-
 }

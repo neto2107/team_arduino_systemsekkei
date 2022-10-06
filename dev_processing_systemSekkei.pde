@@ -1,6 +1,6 @@
 import controlP5.*;
 //定数の宣言
-final int height = 780;
+final int height = 720;
 final int width = 1280;
 
 final int sideBar_width = 50;
@@ -13,6 +13,7 @@ MyButton button_robot2;
 MyButton button_robot3;
 SideBar sideBar;
 PlayField play_field;
+Grid grid;
 
 ControlP5 cp;
 void setup() {
@@ -22,12 +23,16 @@ void setup() {
   //controlP5を使用する
   cp = new ControlP5(this);
   play_field = new PlayField();
-  
+
   //ロボットの生成
-    robot1 = new Robot(new Vec2(100,800),90);
-    robot2 = new Robot(new Vec2(300,100),180);
-    robot3 = new Robot(new Vec2(300,1500),0);
-  
+  robot1 = new Robot(new Vec2(100, 800), 90);
+  robot2 = new Robot(new Vec2(300, 100), 180);
+  robot3 = new Robot(new Vec2(300, 1500), 0);
+
+  //グリッドの生成
+  grid = new Grid();
+
+
   //ボタン関係の描画
   DrawSideButton();
 }
@@ -40,6 +45,15 @@ void draw() {
   switch(sideBar.getselect_num()  ) {
   case 0:
     play_field .draw();
+    break;
+  case 1:
+    grid.draw();
+    break;
+  case 2:
+    grid.draw();
+    break;
+  case 3:
+    grid.draw();
     break;
   }
 }
