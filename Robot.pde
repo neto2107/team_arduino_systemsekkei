@@ -1,11 +1,11 @@
 public int robot_num=1;
 public class Robot extends Field {
-  private int id;
-  private Vec2 real_pos;
+  private int id; //ロボットの分類id
+  private Vec2 real_pos; //ロボットの実際の位置
   private float angle; //角度 //ラジアン角
-  private float accel;
-  ;//加速度
-  private float sensing_range =300; //リアルでどれだけ遠くのものに反応するか(mm)
+  private float accel; //ロボットの加速度
+  private int ultrasonic_sensing_distance = 0;//センサーの感知した位置(mm) 0は未反応
+  private int ultrasonic_sensing_range =300; //リアルでどれだけ遠くのものに反応するか(mm)
   color c3 = color(255, 255, 255); //カラーセンサーの取得値
 
   private Vec2 local_pos;
@@ -53,6 +53,10 @@ public class Robot extends Field {
     arc(0, 0, local_sensing_range, local_sensing_range, Utils.deg_to_rad(-105), Utils.deg_to_rad(-75));
     popMatrix();
   }
+  
+  public int getId(){
+    return id;
+  }
 
   public void setPos(Vec2 real_pos) {
     this.real_pos=real_pos;
@@ -76,5 +80,12 @@ public class Robot extends Field {
   //カラーセンサーの取得地をセット
   public void setColorSenserValue(color c) {
     this.c3 = c;
+  }
+  
+  public int getUltrasonicSensingDistance(){
+    return ultrasonic_sensing_distance;
+  }
+  public void setUltrasonicSensingDistance(int distance){
+    this.ultrasonic_sensing_distance = distance;
   }
 }

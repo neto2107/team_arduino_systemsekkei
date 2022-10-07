@@ -15,6 +15,10 @@ SideBar sideBar;
 PlayField play_field;
 Grid grid;
 
+DrawUltrasonicSensor ulSensor1;
+DrawUltrasonicSensor ulSensor2;
+DrawUltrasonicSensor ulSensor3;
+
 ControlP5 cp;
 void setup() {
   size(1280, 720);
@@ -32,6 +36,12 @@ void setup() {
   //グリッドの生成
   grid = new Grid();
 
+  //グリッドに描画する要素の作成
+  ulSensor1 = new DrawUltrasonicSensor(robot1);
+  ulSensor2 = new DrawUltrasonicSensor(robot2);
+  ulSensor3 = new DrawUltrasonicSensor(robot3);
+
+
 
   //ボタン関係の描画
   DrawSideButton();
@@ -48,12 +58,16 @@ void draw() {
     break;
   case 1:
     grid.draw();
+    ulSensor1.draw();
+
     break;
   case 2:
     grid.draw();
+    ulSensor2.draw();
     break;
   case 3:
     grid.draw();
+    ulSensor3.draw();
     break;
   }
 }
@@ -61,7 +75,6 @@ void draw() {
 //イベントが発生した場合の処理
 public void controlEvent(ControlEvent theEvent) {
   String label = theEvent.getController().getName();
-  println(label);
   switch(label) {
   case "field":
     sideBar.setSelectNum(0);
