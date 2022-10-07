@@ -1,3 +1,7 @@
+public Robot robot1;
+public Robot robot2;
+public Robot robot3;
+
 public class PlayField extends Field {
 
   private Vec4 left_goal_line;
