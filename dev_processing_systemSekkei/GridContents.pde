@@ -3,7 +3,9 @@ public class GridContents extends Grid {
   protected Vec2[] ancerPoint;    //それぞれのグリッドの左上の地点
   protected Vec2[] size; //それぞれのグリッドのサイズ
   protected Vec2[] centerPoint; //それぞれのグリッドの中心
-  protected Robot robot;
+  protected Robot robot; //ロボットのインスタンス
+  private PImage compasImg; //コンパスのイメージ
+  private PImage needleImg; //針のいめーj
 
   color c1 = color(1, 61, 255, 70); //超音波センサーセンシング中の色
 
@@ -19,11 +21,16 @@ public class GridContents extends Grid {
     }
     //描画に必要なロボットの情報
     this.robot=robot;
+
+    //使用する画像の読み込み
+    compasImg = loadImage("compas1.png");
+    needleImg = loadImage("needle.png");
   }
 
   public void draw() {
     this.DrawUltrasonicSensor();
     this.drawColorSensor();
+    this.drawGeomagneticSensor();
   }
 
   //pushMatrix();
@@ -129,6 +136,21 @@ public class GridContents extends Grid {
     pushMatrix();
     pushStyle();
     translate(centerPoint[2].x, centerPoint[2].y);
+    fill(0, 0, 0);
+    textSize(30);
+    text ("GeomagneticSensor", -130, -150, 500, 200);
+
+    image(compasImg, -125, -100, 250, 250);
+    pushMatrix();
+    translate(0, 20);
+    imageMode(CENTER);
+    rotate(robot.getAngle());
+    image(needleImg, 0, 0, 93, 150);
+    popMatrix();
+
+    fill(0, 0, 0);
+    textSize(30);
+    text (Integer.toString((int )Utils.rad_to_deg(robot.getAngle())) + "°", -20, 140, 200, 100);
     popStyle();
     popMatrix();
   }
