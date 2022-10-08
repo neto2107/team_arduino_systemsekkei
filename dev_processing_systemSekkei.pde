@@ -15,9 +15,9 @@ SideBar sideBar;
 PlayField play_field;
 Grid grid;
 
-DrawUltrasonicSensor ulSensor1;
-DrawUltrasonicSensor ulSensor2;
-DrawUltrasonicSensor ulSensor3;
+GridContents contents1;
+GridContents contents2;
+GridContents contents3;
 
 ControlP5 cp;
 void setup() {
@@ -33,13 +33,14 @@ void setup() {
   robot2 = new Robot(new Vec2(300, 100), 180);
   robot3 = new Robot(new Vec2(300, 1500), 0);
 
+
   //グリッドの生成
   grid = new Grid();
 
   //グリッドに描画する要素の作成
-  ulSensor1 = new DrawUltrasonicSensor(robot1);
-  ulSensor2 = new DrawUltrasonicSensor(robot2);
-  ulSensor3 = new DrawUltrasonicSensor(robot3);
+  contents1=new GridContents(robot1);
+  contents2=new GridContents(robot2);
+  contents3=new GridContents(robot3);
 
 
 
@@ -58,16 +59,18 @@ void draw() {
     break;
   case 1:
     grid.draw();
-    ulSensor1.draw();
+    contents1.draw();
+
 
     break;
   case 2:
     grid.draw();
-    ulSensor2.draw();
+    contents2.draw();
+
     break;
   case 3:
     grid.draw();
-    ulSensor3.draw();
+    contents3.draw();
     break;
   }
 }

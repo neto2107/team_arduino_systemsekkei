@@ -6,7 +6,8 @@ public class Robot extends Field {
   private float accel; //ロボットの加速度
   private int ultrasonic_sensing_distance = 0;//センサーの感知した位置(mm) 0は未反応
   private int ultrasonic_sensing_range =300; //リアルでどれだけ遠くのものに反応するか(mm)
-  color c3 = color(255, 255, 255); //カラーセンサーの取得値
+  private color c3 = color(255, 255, 255); //カラーセンサーの取得値
+  private int colorSenserJudged = 0; //カラーセンサーの読み取り値 (0:白 1:黒 2:赤,3：青)
 
   private Vec2 local_pos;
   private Vec2 draw_pos;
@@ -78,10 +79,28 @@ public class Robot extends Field {
   }
 
   //カラーセンサーの取得地をセット
-  public void setColorSenserValue(color c) {
+  public void setColorSensorValue(color c) {
     this.c3 = c;
   }
+  public color getColorSensorValue(){
+    return this.c3;
+  }
   
+  //カラーセンサーの判定値のゲッターとセッター
+  public void setColorSenserJudged(int value){
+    if(value >= 0 || value <+ 3){ //値が規定内ならセット
+      colorSenserJudged = value;
+    }else{
+      print("error:ColorSenserJudgedが規定外の値です");
+    }
+  }
+  
+  public int  getColorSenserJudged(){
+    return this.colorSenserJudged;
+  }
+  
+  
+  //超音波センサーの値のセッターとゲッター
   public int getUltrasonicSensingDistance(){
     return ultrasonic_sensing_distance;
   }
