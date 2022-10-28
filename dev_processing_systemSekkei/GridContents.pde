@@ -1,4 +1,3 @@
-
 public class GridContents extends Grid {
   protected Vec2[] ancerPoint;    //それぞれのグリッドの左上の地点
   protected Vec2[] size; //それぞれのグリッドのサイズ
