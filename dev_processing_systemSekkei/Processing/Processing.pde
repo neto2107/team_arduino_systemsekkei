@@ -1,4 +1,5 @@
 import controlP5.*;
+import processing.serial.*;
 //定数の宣言
 final int height = 720;
 final int width = 1280;
@@ -6,6 +7,7 @@ final int width = 1280;
 final int sideBar_width = 50;
 
 //変数の宣言
+Serial port_G;//シリアル「ポート
 
 MyButton button_field;
 MyButton button_robot1;
