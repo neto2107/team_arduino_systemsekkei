@@ -68,10 +68,16 @@ public class Robot extends Field {
   public void setAngle(float angle) {
     this.angle = angle;
   }
+  
+  
   //ロボットの角度を更新するセッター(入力がが度)
   public void set_degree(float degree) {
     this.angle = Utils.deg_to_rad(degree);
   }
+  public float getAngle(){
+    return this.angle;
+  }
+  
 
   public void updatePos() {
     this.local_pos = this.convert_real_for_local(real_pos);
