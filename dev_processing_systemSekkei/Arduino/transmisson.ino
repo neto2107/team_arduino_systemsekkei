@@ -1,22 +1,47 @@
 byte inByte;
-unsigned long tusinTimePrev = 0;
+unsigned long timePrevList[3] ={0,0,0};
+
+
+//通信を受信する関数
 void recvTusin(){
-    if(tusinState(50)){//50msごとに通信
+    if(timeNow_G - timePrevList[0] > 100){//50msごとに通信
+
         if(Serial.available()>0){
             inByte = Serial.read();
             if(inByte == 0xff){
-                Serial.write('H'); //文字0x320をバイナリデータとして送信
-                sendInt(10);
-                tusinTimePrev = timeNow_G;
+                Serial.write('C'); //文字をバイナリデータとして送信
+                sendRGB();
+                timePrevList[0] = timeNow_G;
+                timePrevList[1] = timeNow_G;
             }
         }
     }
-
-    if(timeNow_G - tusinTimePrev > 1000){
-        Serial.write('H');
-        sendInt(10);
+    if(timeNow_G - timePrevList[2] > 100){//50msごとに通信
+        if(Serial.available()>0){
+            inByte = Serial.read();
+            if(inByte == 0xff){
+                Serial.write('G'); //文字をバイナリデータとして送信
+                sendCompass();
+                timePrevList[2] = timeNow_G;
+                timePrevList[1] = timeNow_G;
+            }
+        }
+    }
+    if(timeNow_G - timePrevList[1] > 1000){
+        Serial.write('N');
+        timePrevList[1] = timeNow_G;
     }
     
+}
+
+void sendRGB(){
+  Serial.write(r_G);
+  Serial.write(g_G);
+  Serial.write(b_G);
+}
+
+void sendCompass(){
+  sendInt(heading_G);
 }
 
 //Int型の数値をsereal.writeで送信する

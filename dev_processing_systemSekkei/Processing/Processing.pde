@@ -8,6 +8,8 @@ final int sideBar_width = 50;
 
 //変数の宣言
 Serial port_G;//シリアル「ポート
+Serial port2_G;
+Serial port3_G;
 
 MyButton button_field;
 MyButton button_robot1;
@@ -34,6 +36,9 @@ void setup() {
   robot1 = new Robot(new Vec2(100, 800), 90);
   robot2 = new Robot(new Vec2(300, 100), 180);
   robot3 = new Robot(new Vec2(300, 1500), 0);
+  
+  //Serialポートを指定 
+  port_G = new Serial(this,"COM3",9600);
 
 
   //グリッドの生成
