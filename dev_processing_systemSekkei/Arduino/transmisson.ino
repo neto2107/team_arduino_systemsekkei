@@ -1,47 +1,80 @@
 byte inByte;
-unsigned long timePrevList[3] ={0,0,0};
+unsigned long timePrevList[5] = {0, 0, 0, 0, 0};
 
 
 //通信を受信する関数
-void recvTusin(){
-    if(timeNow_G - timePrevList[0] > 100){//50msごとに通信
-
-        if(Serial.available()>0){
-            inByte = Serial.read();
-            if(inByte == 0xff){
-                Serial.write('C'); //文字をバイナリデータとして送信
-                sendRGB();
-                timePrevList[0] = timeNow_G;
-                timePrevList[1] = timeNow_G;
-            }
-        }
-    }
-    if(timeNow_G - timePrevList[2] > 100){//50msごとに通信
-        if(Serial.available()>0){
-            inByte = Serial.read();
-            if(inByte == 0xff){
-                Serial.write('G'); //文字をバイナリデータとして送信
-                sendCompass();
-                timePrevList[2] = timeNow_G;
-                timePrevList[1] = timeNow_G;
-            }
-        }
-    }
-    if(timeNow_G - timePrevList[1] > 1000){
-        Serial.write('N');
+void recvTusin() {
+//  if (timeNow_G - timePrevList[0] > 500) { //50msごとに通信
+//    if (Serial.available() > 0) {
+//      inByte = Serial.read();
+//      if (inByte == 0xff) {
+//        Serial.write('C'); //文字をバイナリデータとして送信
+//        sendRGB();
+//        timePrevList[0] = timeNow_G;
+//        timePrevList[1] = timeNow_G;
+//      }
+//    }
+//  }
+//  if (timeNow_G - timePrevList[2] > 500) { //50msごとに通信
+//    if (Serial.available() > 0) {
+//      inByte = Serial.read();
+//      if (inByte == 0xff) {
+//        Serial.write('G'); //文字をバイナリデータとして送信
+//        sendCompass();
+//        timePrevList[2] = timeNow_G;
+//        timePrevList[1] = timeNow_G;
+//      }
+//    }
+//  }
+//  if (timeNow_G - timePrevList[3] > 500) { //50msごとに通信
+//    if (Serial.available() > 0) {
+//      inByte = Serial.read();
+//      if (inByte == 0xff) {
+//        Serial.write('S'); //文字をバイナリデータとして送信
+//        sendSonic();
+//        timePrevList[3] = timeNow_G;
+//        timePrevList[1] = timeNow_G;
+//      }
+//    }
+//  }
+  if(timeNow_G - timePrevList[4] > 100){
+        if (Serial.available() > 0) {
+      inByte = Serial.read();
+      if (inByte == 0xff) {
+        Serial.write('A'); //文字をバイナリデータとして送信
+        sendRGB();
+        sendCompass();
+        sendSonic();
+        sendAccel();
+        timePrevList[4] = timeNow_G;
         timePrevList[1] = timeNow_G;
+      }
     }
-    
+  }
+  if (timeNow_G - timePrevList[1] > 1000) {
+    Serial.write('N');
+    timePrevList[1] = timeNow_G;
+  }
+
 }
 
-void sendRGB(){
-  Serial.write(r_G);
-  Serial.write(g_G);
-  Serial.write(b_G);
+void sendRGB() {
+  int r = r_G, g = g_G, b = b_G;
+  Serial.write(r);
+  Serial.write(g);
+  Serial.write(b);
 }
 
-void sendCompass(){
+void sendCompass() {
   sendInt(heading_G);
+}
+
+void sendSonic(){
+  sendInt(dist_G);
+}
+
+void sendAccel(){
+  sendInt(ax);
 }
 
 //Int型の数値をsereal.writeで送信する

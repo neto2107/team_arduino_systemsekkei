@@ -3,7 +3,7 @@ int sof_f = 0; //SOFを発見したかどうかのフラグ
 int l;//受信バッファ内のデータ数
 void serialEvent(Serial p) {
   l = p.available();//受信バッファないのデータ数を取得
-  if (p == port_G&&l>8) {
+  if (p == port_G&&l>=10) {
     recvManager(p, robot1);
   }
 }
@@ -18,7 +18,13 @@ int recvManager(Serial p, Robot robo) {
       if (sof == 'G') {
         sof_f = 2;//コンパスセンサーの値を受け取り
       }
-      if(sof == 'N'){
+      if (sof == 'S') {
+        sof_f = 3;//超音波センサーの値受け取り
+      }
+      if (sof == 'A') {
+        sof_f = 4;//超音波センサーの値受け取り
+      }
+      if (sof == 'N') {
         println("<--N");
         port_G.write(0xff); //バイトデータを送信(1byte)
         sof_f = 0;
@@ -44,21 +50,53 @@ int recvManager(Serial p, Robot robo) {
     //コンパスセンサーの値受け取り
     if (sof_f == 2) {
       if (l>=2) {
-        
+
         robo.set_degree(recvCompass(p)); //角度を取得する
-        
+
         l-=2; //受信した分を減らす
         println("<-G"); //データ受信タイミング
         port_G.write(0xff); //バイトデータを送信(1byte)
         sof_f=0;
-      }else{
+      } else {
+        sof_f = 0;
+      }
+    }
+    //超音波センサーの値受け取り
+    if (sof_f == 3) {
+      if (l>=2) {
+
+        robo.setUltrasonicSensingDistance(recvSonic(p) * 10);
+
+        l-=2; //受信した分を減らす
+        println("<-G"); //データ受信タイミング
+        port_G.write(0xff); //バイトデータを送信(1byte)
+        sof_f=0;
+      } else {
+        sof_f = 0;
+      }
+    }
+    //超音波センサーの値受け取り
+    if (sof_f == 4) {
+      if (l>=9) {
+        //受信したデータを格納
+        color c = recvRGB(p);
+        robo.setColorSensorValue(c); //ロボットにカラーセンサーの値をセット
+        robo.set_degree(recvCompass(p)); //角度を取得する
+        robo.setUltrasonicSensingDistance(recvSonic(p) * 10);
+        robo.setAccel(recvAccel(p));
+        println(robo.getAccel());
+        l-=9; //受信した分を減らす
+        println("<-A"); //データ受信タイミング
+        port_G.write(0xff); //バイトデータを送信(1byte)
+        sof_f=0;
+      } else {
         sof_f = 0;
       }
     }
   }
   return 0;
 }
-
+//コンパスの情報を受信するメソッド
 int recvCompass(Serial p) {
   int compass = recvInt(p);
   return compass;
@@ -71,6 +109,15 @@ color recvRGB(Serial p) {
   int b = p.read();
   color c = color(r, g, b);
   return c;
+}
+
+//超音波センサーを受信するメソッド
+int recvSonic(Serial p) {
+  return recvInt(p);
+}
+
+int recvAccel(Serial p){
+  return recvInt(p);
 }
 
 //ArduinoからInt型の値を受信する
