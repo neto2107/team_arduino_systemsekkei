@@ -6,7 +6,7 @@ public class GridContents extends Grid {
   private PImage compasImg; //コンパスのイメージ
   private PImage needleImg; //針のいめーj
   
-  private graphMonitor graph; //グラフのインスタンス
+  private graphMonitor graph,graph2; //グラフのインスタンス
 
   color c1 = color(1, 61, 255, 70); //超音波センサーセンシング中の色
 
@@ -25,6 +25,7 @@ public class GridContents extends Grid {
     
     //グラフ描画のための初期化
     graph = new graphMonitor("Acceleration Sensor",-250,-150,500,300);
+    graph2 = new graphMonitor("Speed Sensor",-250,-150,500,300);
 
     //使用する画像の読み込み
     compasImg = loadImage("compas1.png");
@@ -36,6 +37,7 @@ public class GridContents extends Grid {
     this.drawColorSensor();
     this.drawGeomagneticSensor();
     this.drawAccelSensor();
+    this.drawSpeedSensor();
   }
 
   //pushMatrix();
@@ -166,6 +168,15 @@ public class GridContents extends Grid {
     pushStyle();
     translate(centerPoint[4].x, centerPoint[4].y);
     graph.graphDraw(robot.getAccel());
+    popStyle();
+    popMatrix();
+  }
+  
+  private void drawSpeedSensor(){
+    pushMatrix();
+    pushStyle();
+    translate(centerPoint[5].x, centerPoint[5].y);
+    graph2.graphDraw(robot.getSpeed());
     popStyle();
     popMatrix();
   }

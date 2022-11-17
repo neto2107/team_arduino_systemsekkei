@@ -3,6 +3,7 @@ public class Robot extends Field {
   private int id; //ロボットの分類id
   private Vec2 real_pos; //ロボットの実際の位置
   private int accel;//ロボットの加速度
+  private int speed;//ロボットの速度
   private float angle; //角度 //ラジアン角
   private int ultrasonic_sensing_distance = 0;//センサーの感知した位置(mm) 0は未反応
   private int ultrasonic_sensing_range =300; //リアルでどれだけ遠くのものに反応するか(mm)
@@ -120,5 +121,14 @@ public class Robot extends Field {
   }
   public int getAccel(){
     return this.accel;
+  }
+  
+  //速度センサーのセッターとゲッター
+  public void setSpeed(int speed){
+    this.speed = speed;
+  }
+  
+  public int getSpeed(){
+    return this.speed;
   }
 }
