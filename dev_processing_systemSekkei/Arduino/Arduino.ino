@@ -1,13 +1,15 @@
-#include <MsTimer2.h>
+//#include <MsTimer2.h>
 #include <Wire.h>
 #include <ZumoMotors.h>
 #include <Pushbutton.h>
 #include <LSM303.h>
 #include <ZumoBuzzer.h>               // ブザーライブラリの読み込み
 
+#define TRIG 2
+#define ECHO 4
+
 const int buzzerPin = 3;              // ブザーは 3 番ピン
-const int trig = 2;              //TrigピンをArduinoの2番ピンに
-const int echo = 4;              //EchoピンをArduinoの4番ピンに
+
 
 ZumoMotors motors_G;
 Pushbutton button(ZUMO_BUTTON);
@@ -18,8 +20,9 @@ int timeNow_G;
 int heading_G;//現在向いている角度(磁気センサー)
 int dist_G;//超音波センサーで検知した距離
 float r_G, g_G, b_G; //カラーセンサーの格納値
-float mx=0, my=0, mz=0;
+float mx=0, my=0, mz=0;//地磁気センサーの値
 float ax=0, ay=0, az=0;//ロボットの加速度
+float real_a;
 float vx = 0;//ロボットの速度
 
 
@@ -60,7 +63,8 @@ void loop() {
   getRGB(r_G, g_G, b_G);
   dist_G = distance();
   getCompass();
-  //recvTusin();
+  recvTusin();
   mover();
-  printMe();
+  calSpeed();
+  //printMe();
 }

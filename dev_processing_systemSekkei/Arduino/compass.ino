@@ -2,6 +2,7 @@
 #define CRB_REG_M_2_5GAUSS 0x60 // CRB_REG_M value for magnetometer +/-2.5 gauss full scale
 #define CRA_REG_M_220HZ    0x1C // CRA_REG_M value for magnetometer 220 Hz update rate
 unsigned int compassTimaPrev = 0;
+float accel_prev_value= 0;
 void setupCompass()
 {
   compass.init();
@@ -9,6 +10,13 @@ void setupCompass()
   compass.writeReg(LSM303::CRB_REG_M, CRB_REG_M_2_5GAUSS); // +/- 2.5 gauss sensitivity to hopefully avoid overflow problems
   compass.writeReg(LSM303::CRA_REG_M, CRA_REG_M_220HZ);    // 220 Hz compass update rate
   delay(1000); // 良く分からないが必要
+}
+
+//戻り値:進行方向の加速度mm/s
+void setRealAccel(){
+  float a = ax/az * 9800;
+  real_a = rc_filter(0.7,accel_prev_value,a);
+  accel_prev_value = real_a;
 }
 
 void  calibrationCompass()
@@ -71,6 +79,7 @@ void getCompass(){
   my = map(compass.m.y,compass.m_min.y,compass.m_max.y,-128,127);
   mz = map(compass.m.z,compass.m_min.z,compass.m_max.z,-128,127); 
   heading_G = atan2(my,mx) * 180 / M_PI;
+  setRealAccel();
   if (heading_G<0) heading_G += 360;
   compassTimaPrev = timeNow_G;
 }
