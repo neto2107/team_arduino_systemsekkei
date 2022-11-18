@@ -7,6 +7,8 @@
 
 #define TRIG 2
 #define ECHO 4
+#define SPEED(time) 150/time //速度mm/s
+
 
 const int buzzerPin = 3;              // ブザーは 3 番ピン
 
@@ -24,6 +26,7 @@ float mx=0, my=0, mz=0;//地磁気センサーの値
 float ax=0, ay=0, az=0;//ロボットの加速度
 float real_a;
 float vx = 0;//ロボットの速度
+int speed1 = 1 //15cm進むのにかかる時間(s)
 
 
 void setup() {
@@ -48,9 +51,10 @@ void setup() {
   buzzer.play("L16 cdegreg4");        // ブザーにて音楽を鳴らす
   //カラーセンサーのキャリブレーション
   button.waitForButton(); // Zumo buttonが押されるまで待機
-  
   CalibrationColorSensor(); // カラーセンサーのキャリブレーション
   buzzer.play("L16 cdegreg4");        // ブザーにて音楽を鳴らす
+  //加速度センサーのキャリブレーション
+
   button.waitForButton(); // Zumo buttonが押されるまで待機
 //  MsTimer2::set(500,calSpeed); //タイマー割り込みの間隔設定
 //  MsTimer2::start();//タイマー割り込み開始

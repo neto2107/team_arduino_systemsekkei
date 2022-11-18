@@ -3,6 +3,7 @@
 #define CRA_REG_M_220HZ    0x1C // CRA_REG_M value for magnetometer 220 Hz update rate
 unsigned int compassTimaPrev = 0;
 float accel_prev_value= 0;
+float real_accel_offset = 0;
 void setupCompass()
 {
   compass.init();
@@ -14,10 +15,23 @@ void setupCompass()
 
 //戻り値:進行方向の加速度mm/s
 void setRealAccel(){
-  float a = ax/az * 9800;
-  real_a = rc_filter(0.7,accel_prev_value,a);
-  accel_prev_value = real_a;
+  float a = sqrtf( ax*ax + ay*ay)/abs(az) * 9800;
+  float filterd_a = abs(rc_filter(0.8,accel_prev_value,a)-real_accel_offset);
+  real_a = filterd_a;
+  accel_prev_value = a;
 }
+
+int getAccelDirecton(){
+  int direction =  atan2(ay,ax)* 180 / M_PI;
+  if (direction<0) direction += 360;
+  return direction;
+}
+
+void setAccelOffset(){
+  float a = sqrtf( ax*ax + ay*ay)/abs(az) * 9800;
+  real_accel_offset = a;
+}
+
 
 void  calibrationCompass()
 {
@@ -72,9 +86,9 @@ void getCompass(){
   compass.m_min.x = min(compass.m.x,compass.m_min.x);  compass.m_max.x = max(compass.m.x,compass.m_max.x);
   compass.m_min.y = min(compass.m.y,compass.m_min.y);  compass.m_max.y = max(compass.m.y,compass.m_max.y);
   compass.m_min.z = min(compass.m.z,compass.m_min.z);  compass.m_max.z = max(compass.m.z,compass.m_max.z);
-  ax = map(compass.a.x,-32768,32767,-1024,1023);
-  ay = map(compass.a.y,-32768,32767,-1024,1023);
-  az = map(compass.a.z,-32768,32767,-1024,1023);
+  ax = compass.a.x;//map(compass.a.x,-32768,32767,-1024,1023);
+  ay = compass.a.y;//map(compass.a.y,-32768,32767,-1024,1023);
+  az = compass.a.z;//map(compass.a.z,-32768,32767,-1024,1023);
   mx = map(compass.m.x,compass.m_min.x,compass.m_max.x,-128,127);
   my = map(compass.m.y,compass.m_min.y,compass.m_max.y,-128,127);
   mz = map(compass.m.z,compass.m_min.z,compass.m_max.z,-128,127); 

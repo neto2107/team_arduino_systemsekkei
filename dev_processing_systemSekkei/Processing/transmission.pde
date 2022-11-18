@@ -3,7 +3,7 @@ int sof_f = 0; //SOFを発見したかどうかのフラグ
 int l;//受信バッファ内のデータ数
 void serialEvent(Serial p) {
   l = p.available();//受信バッファないのデータ数を取得
-  if (p == port_G&&l>=10) {
+  if (p == port_G&&l>=12) {
     recvManager(p, robot1);
   }
 }
@@ -83,9 +83,10 @@ int recvManager(Serial p, Robot robo) {
         robo.setColorSensorValue(c); //ロボットにカラーセンサーの値をセット
         robo.set_degree(recvCompass(p)); //角度を取得する
         robo.setUltrasonicSensingDistance(recvSonic(p) * 10);
-        robo.setAccel(recvAccel(p));
+        robo.setAccel(recvAccel(p)); //加速度の格納と表示
+        robo.setSpeed(recvSpeed(p));
         println(robo.getAccel());
-        l-=9; //受信した分を減らす
+        l-=11; //受信した分を減らす
         println("<-A"); //データ受信タイミング
         port_G.write(0xff); //バイトデータを送信(1byte)
         sof_f=0;
@@ -113,6 +114,10 @@ color recvRGB(Serial p) {
 
 //超音波センサーを受信するメソッド
 int recvSonic(Serial p) {
+  return recvInt(p);
+}
+
+int recvSpeed(Serial p){
   return recvInt(p);
 }
 

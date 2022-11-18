@@ -46,6 +46,7 @@ void recvTusin() {
         sendCompass();
         sendSonic();
         sendAccel();
+        sendSpeed();
         timePrevList[4] = timeNow_G;
         timePrevList[1] = timeNow_G;
       }
@@ -66,7 +67,7 @@ void sendRGB() {
 }
 
 void sendCompass() {
-  sendInt(heading_G);
+  sendInt(getAccelDirecton());
 }
 
 void sendSonic(){
@@ -74,7 +75,11 @@ void sendSonic(){
 }
 
 void sendAccel(){
-  sendInt(ax);
+  sendInt(real_a);
+}
+
+void sendSpeed(){
+  sendInt(vx);
 }
 
 //Int型の数値をsereal.writeで送信する
