@@ -66,7 +66,7 @@ void getRGB( float& r0, float& g0, float& b0) {
 }
 
 //k近傍法による色判別
-void Nearest_Neighbor(){
+int Nearest_Neighbor(){
   int count =0;
   int color = -1;
   float minDistance = 999999;
@@ -81,72 +81,43 @@ void Nearest_Neighbor(){
       color = i;
     }
   }
-
-  switch(color){
-    case 0:
-      Serial.println("black");
-      break;
-    case 1:
-      Serial.println("White");
-      break;
-    case 2:
-      Serial.println("Red");
-      break;
-    case 3:
-      Serial.println("Green");
-      break;
-    case 4:
-      Serial.println("Blue");
-      break;
-    case 5:
-      Serial.println("Cyan");
-      break;
-    case 6:
-      Serial.println("Magenta");
-      break;
-    case 7:
-      Serial.println("Yellow");
-      break;
-    default:
-      Serial.println("not detected");
-      break;
-  }
+  return color;
 }
 
-//k近傍法の色を自動で算出する
-void auto_avg(){
-  String colorList[] = {"Black","White","Red","Blue"};
-  Serial.println("start_auto_avarege");
-  for(int i = 0; i < max_colors; i++){
-    Serial.print("start");Serial.println(colorList[i]);
-    int tmp[3][3];
-    for(int j = 0; j <3 ; j++){
-      delay(3000); //2秒待機
-      Serial.println("get_data");
-      //値の読み取り
+////k近傍法の色を自動で算出する
+//void auto_avg(){
+//  String colorList[] = {"Black","White","Red","Blue"};
+//  Serial.println("start_auto_avarege");
+//  for(int i = 0; i < max_colors; i++){
+//    Serial.print("start");Serial.println(colorList[i]);
+//    int tmp[3][3];
+//    for(int j = 0; j <3 ; j++){
+//      delay(3000); //2秒待機
+//      Serial.println("get_data");
+//      //値の読み取り
 
-      tmp[j][0] = r_G;
-      tmp[j][1] = g_G;
-      tmp[j][2] = b_G; 
-    }
-    Serial.print("cal_average");
-    int sum[3]{0,0,0};
-    for(int k = 0; k < 3; k++){
-      //合計値を計算
-      sum[0]+= tmp[k][0];
-      sum[1]+= tmp[k][1];
-      sum[2]+= tmp[k][2];
-    }
-    //平均を求めて代入
-    ave_colors[i][0] = sum[0]/3;
-    ave_colors[i][1] = sum[1]/3;
-    ave_colors[i][2] = sum[2]/3;
-    //色ごとの結果を表示
-      Serial.print("end");Serial.print(colorList[i]);
-      Serial.print("(R,G,B)");
-      Serial.print(ave_colors[i][0]);Serial.print(",");
-      Serial.print(ave_colors[i][1]);Serial.print(",");
-      Serial.print(ave_colors[i][2]);Serial.println("");
-  }
-   Serial.println("end_auto_avarege");
-}
+//      tmp[j][0] = r_G;
+//      tmp[j][1] = g_G;
+//      tmp[j][2] = b_G; 
+//    }
+//    Serial.print("cal_average");
+//    int sum[3]{0,0,0};
+//    for(int k = 0; k < 3; k++){
+//      //合計値を計算
+//      sum[0]+= tmp[k][0];
+//      sum[1]+= tmp[k][1];
+//      sum[2]+= tmp[k][2];
+//    }
+//    //平均を求めて代入
+//    ave_colors[i][0] = sum[0]/3;
+//    ave_colors[i][1] = sum[1]/3;
+//    ave_colors[i][2] = sum[2]/3;
+//    //色ごとの結果を表示
+//      Serial.print("end");Serial.print(colorList[i]);
+//      Serial.print("(R,G,B)");
+//      Serial.print(ave_colors[i][0]);Serial.print(",");
+//      Serial.print(ave_colors[i][1]);Serial.print(",");
+//      Serial.print(ave_colors[i][2]);Serial.println("");
+//  }
+//   Serial.println("end_auto_avarege");
+//}
