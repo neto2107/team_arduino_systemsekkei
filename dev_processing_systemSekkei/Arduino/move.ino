@@ -1,5 +1,4 @@
 
-unsigned int moveTimePre = 0;
 
 void mover() {
   float speed_diff=0;
@@ -65,6 +64,14 @@ float turnTo(float theta_r) {
   float u;
   float KP = 4.0;
   float TIinv = 2/1000.0;
+
+  if(move_thetaPrev_G!=theta_r) {
+    move_timeStart_G=-1;
+  }
+  if (move_timeStart_G < 0) {
+    move_timeStart_G=millis();
+  }
+
   heading_G = atan2(my,mx) * 180 / M_PI;
   if (heading_G<0) heading_G += 360;
   float e = theta_r-heading_G;
@@ -78,5 +85,14 @@ float turnTo(float theta_r) {
   }
   if ( u> 180 ) u = 180;  // 飽和
   if ( u<-180 ) u = -180; // 飽和
+
+    //位置の補正が利かないときは最速でコースアウトする
+  if(-10 < heading_G-theta_r && heading_G-theta_r < 10){//ほぼ理想の方向を向いてるのでこのまま
+  }
+  else if (timeNow_G - move_timeStart_G > 3000) {//3秒以上方向の転換が起こらない
+    motors_G.setSpeeds(1000, 1000);//変な方向を向いたまま戻らなければ最速でコースアウトしてスタートからやり直す
+  }
+  move_thetaPrev_G = theta_r;
+
   return u;
 }

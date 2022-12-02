@@ -5,6 +5,10 @@
 #include <LSM303.h>
 #include <ZumoBuzzer.h>               // ブザーライブラリの読み込み
 
+
+//ここからグローバル変数-------------------------------------------------------------
+
+//Arduino.ino
 #define TRIG 2
 #define ECHO 4
 #define DEG_TO_ANG 
@@ -22,7 +26,6 @@ Pushbutton button(ZUMO_BUTTON);
 LSM303 compass;
 ZumoBuzzer buzzer;                    // ZumoBuzzer クラスのインスタンスを生成
 
-
 int timeNow_G;
 int heading_G;//現在向いている角度(磁気センサー)
 int MotorR_G=0,MotorL_G=0; //モーターにかけている速度
@@ -35,9 +38,33 @@ float now_speed = 0;//ロボットの速度
 float speed100 = 1; //speed100で1秒間に進める距離(mm/s)
 float speed0=0; //現在の速度
 unsigned int turnTimePrev = 0;
+
+//move.ino---------------------------------------------------------------------
+unsigned int moveTimePre = 0;
+float move_timeStart_G = -1;
+float move_thetaPrev_G;
+
+//color.ino--------------------------------------------------------------------
+unsigned int r_min, g_min, b_min; // このグローバル変数はこのファイル内のみで使用
+unsigned int r_max, g_max, b_max;
+
+//NN関数のために新たに追加する項目
+#define max_colors 4
+unsigned int ave_colors[max_colors][3]={
+  {4,6,11},  //黒色
+  {255,255,255},//白色
+  {178,0,0}, //赤
+  {0,16,121} //青
+};
+
+//collision.ino
+float collision_bf_angle; //前回の角度
+float collision_rc;
+float collision_prev_dist;
+
 int now_Pos[2] = {0,1600/4};//x,y
 
-
+//グローバル変数ここまで----------------------------------------------------------
 void setup() {
   Serial.begin(9600);
   Wire.begin();
@@ -76,6 +103,7 @@ void setup() {
 void loop() {
   timeNow_G = millis();
   //カラーセンサーの値を取得
+  //消さないでください
   if (timeNow_G-turnTimePrev<100) {
     return;
   }
@@ -85,8 +113,11 @@ void loop() {
   dist_G = distance();
   getCompass();
   recvTusin();
-  mover();
+  //mover();
 
+  task();
   //printMe();
+
+  //消さないでください
   turnTimePrev= timeNow_G;
 }

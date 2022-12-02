@@ -1,17 +1,6 @@
 #include <Adafruit_TCS34725.h> // カラーセンサライブラリのヘッダーファイル
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_60X);
 
-unsigned int r_min, g_min, b_min; // このグローバル変数はこのファイル内のみで使用
-unsigned int r_max, g_max, b_max;
-
-//NN関数のために新たに追加する項目
-#define max_colors 4
-unsigned int ave_colors[max_colors][3]={
-  {4,6,11},  //黒色
-  {255,255,255},//白色
-  {178,0,0}, //赤
-  {0,16,121} //青
-};
 
 void  CalibrationColorSensor()
 {
