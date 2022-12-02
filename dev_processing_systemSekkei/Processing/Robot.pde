@@ -131,4 +131,5 @@ public class Robot extends Field {
   public int getSpeed(){
     return this.speed;
   }
+  
 }

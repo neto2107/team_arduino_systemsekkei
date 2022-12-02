@@ -7,7 +7,11 @@
 
 #define TRIG 2
 #define ECHO 4
-#define SPEED(time) 150/time //速度mm/s
+#define DEG_TO_ANG 
+#define DEFAULT_SPEED 100
+
+#define FIELD_SIZE_W 2500
+#define FIELD_SIZE_H 1600
 
 
 const int buzzerPin = 3;              // ブザーは 3 番ピン
@@ -18,15 +22,20 @@ Pushbutton button(ZUMO_BUTTON);
 LSM303 compass;
 ZumoBuzzer buzzer;                    // ZumoBuzzer クラスのインスタンスを生成
 
+
 int timeNow_G;
 int heading_G;//現在向いている角度(磁気センサー)
+int MotorR_G=0,MotorL_G=0; //モーターにかけている速度
 int dist_G;//超音波センサーで検知した距離
 float r_G, g_G, b_G; //カラーセンサーの格納値
 float mx=0, my=0, mz=0;//地磁気センサーの値
 float ax=0, ay=0, az=0;//ロボットの加速度
 float real_a;
-float vx = 0;//ロボットの速度
-int speed1 = 1 //15cm進むのにかかる時間(s)
+float now_speed = 0;//ロボットの速度
+float speed100 = 1; //speed100で1秒間に進める距離(mm/s)
+float speed0=0; //現在の速度
+unsigned int turnTimePrev = 0;
+int now_Pos[2] = {0,1600/4};//x,y
 
 
 void setup() {
@@ -52,8 +61,12 @@ void setup() {
   //カラーセンサーのキャリブレーション
   button.waitForButton(); // Zumo buttonが押されるまで待機
   CalibrationColorSensor(); // カラーセンサーのキャリブレーション
-  buzzer.play("L16 cdegreg4");        // ブザーにて音楽を鳴らす
-  //加速度センサーのキャリブレーション
+  buzzer.play("L16 cdegreg4");        // ブザーにて音楽を鳴ら
+
+  button.waitForButton(); // Zumo buttonが押されるまで待機
+
+  calibration();
+  buzzer.play("L16 cdegreg4");        // ブザーにて音楽を鳴ら
 
   button.waitForButton(); // Zumo buttonが押されるまで待機
 //  MsTimer2::set(500,calSpeed); //タイマー割り込みの間隔設定
@@ -61,7 +74,11 @@ void setup() {
 }
 
 void loop() {
-
+  timeNow_G = millis();
+  //カラーセンサーの値を取得
+  if (timeNow_G-turnTimePrev<100) {
+    return;
+  }
   timeNow_G = millis();
   //カラーセンサーの値を取得
   getRGB(r_G, g_G, b_G);
@@ -69,6 +86,7 @@ void loop() {
   getCompass();
   recvTusin();
   mover();
-  calSpeed();
+
   //printMe();
+  turnTimePrev= timeNow_G;
 }

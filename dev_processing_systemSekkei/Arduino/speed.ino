@@ -1,20 +1,7 @@
+unsigned cal_pos_prev_time=0;
 //速度を計算mm/s
-void calSpeed(){
-  static unsigned int prevSpeedTime = 0;
-  unsigned int diff = timeNow_G - prevSpeedTime;//時間の差分
-  int direction = abs(getAccelDirecton());
-  if(diff >100){
-    vx = vx + (real_a * (diff))*((direction-90)/90);
-    prevSpeedTime = timeNow_G;
-  }
-    
-}
-
-float setup_speed(){
-  button.waitForButton(); // Zumo buttonが押されるまで待機
-  motors_G.setSpeeds(100);
-  
-  
+void calPos(){
+  now_Pos[0]=cos();
 }
 
 float setup_speed100(){

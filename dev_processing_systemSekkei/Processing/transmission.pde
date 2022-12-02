@@ -3,7 +3,7 @@ int sof_f = 0; //SOFを発見したかどうかのフラグ
 int l;//受信バッファ内のデータ数
 void serialEvent(Serial p) {
   l = p.available();//受信バッファないのデータ数を取得
-  if (p == port_G&&l>=12) {
+  if (p == port_G&&l>=16) {
     recvManager(p, robot1);
   }
 }
@@ -77,7 +77,7 @@ int recvManager(Serial p, Robot robo) {
     }
     //超音波センサーの値受け取り
     if (sof_f == 4) {
-      if (l>=9) {
+      if (l>=15) {
         //受信したデータを格納
         color c = recvRGB(p);
         robo.setColorSensorValue(c); //ロボットにカラーセンサーの値をセット
@@ -85,8 +85,9 @@ int recvManager(Serial p, Robot robo) {
         robo.setUltrasonicSensingDistance(recvSonic(p) * 10);
         robo.setAccel(recvAccel(p)); //加速度の格納と表示
         robo.setSpeed(recvSpeed(p));
-        println(robo.getAccel());
-        l-=11; //受信した分を減らす
+        robo.setPos(recvPos(p));
+        
+        l-=15; //受信した分を減らす
         println("<-A"); //データ受信タイミング
         port_G.write(0xff); //バイトデータを送信(1byte)
         sof_f=0;
@@ -123,6 +124,13 @@ int recvSpeed(Serial p){
 
 int recvAccel(Serial p){
   return recvInt(p);
+}
+
+Vec2 recvPos(Serial p){
+  Vec2 pos = new Vec2();
+  pos.x = recvInt(p);
+  pos.y = recvInt(p);
+  return pos;
 }
 
 //ArduinoからInt型の値を受信する
