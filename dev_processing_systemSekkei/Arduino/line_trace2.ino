@@ -1,16 +1,5 @@
 //主に吉原作成
-int keisoku_flag;
 
-int motorL,motorR;
-int goal,start;//ゴールは自軍向き//スタートは敵軍向き
-int color;
-int move_time, rotate_time=3000, change_time;
-float start_time;
-int pre_dist;
-
-float r, b, g;
-const unsigned int r_mini = 38, g_mini = 51, b_mini = 55;
-const unsigned int r_maxi = 252, g_maxi = 255, b_maxi = 255;
 
 #define WHITE    0 //白
 #define BLACK    1 //黒
@@ -72,7 +61,7 @@ void task() {//lineトレース関数
       break;
       
     case FORWARD: //直進
-      motorL = motorR = 150;
+      MotorL_G = MotorR_G = 150;
       if (waitfor(1000)==1) {
         mode = SEARCH;
         start_time = millis();
@@ -80,8 +69,8 @@ void task() {//lineトレース関数
       break;
 
     case SEARCH: //回転
-      motorL =  150;
-      motorR = -150;
+      MotorL_G =  150;
+      MotorR_G = -150;
       if (waitfor(1000)==1) {//1秒の回転のあとの処理
         if(waitfor(1000)==1) {//
           mode = FORWARD;
@@ -103,7 +92,7 @@ void task() {//lineトレース関数
         
      
     case CATCH:
-      motorR = motorL = 150;
+      MotorR_G = MotorL_G = 150;
       if(0 < dist_G && dist_G < 7) {
         mode = RETURN;
         start_time = millis();
@@ -116,14 +105,14 @@ void task() {//lineトレース関数
       break;
 
     case RETURN:
-//      motorR = motorL = 150;
+//      MotorR_G = MotorL_G = 150;
       if(waitfor(1000)==1) {//最初の方向いて帰る
         if (Nearest_Neighbor() == 2 || Nearest_Neighbor() == 3) {//赤or青を検知
           mode = BACK;
           start_time = millis();
         }
         else{//赤or青を検知するまで進む
-          motorR = motorL = 150;
+          MotorR_G = MotorL_G = 150;
         }
       }
       else{
@@ -144,15 +133,11 @@ void task() {//lineトレース関数
         
       }
       else {
-        motorR = motorL = -100;
+        MotorR_G = MotorL_G = -100;
       }
       
       break;
 
-
-
-      
-      
     case KEISOKU:
       
       break;
@@ -173,12 +158,12 @@ void task() {//lineトレース関数
 
   }
   Serial.print("右=");
-  Serial.println(motorR);
+  Serial.println(MotorR_G);
   Serial.print("左=");
-  Serial.println(motorL);
+  Serial.println(MotorL_G);
   Serial.print("mode=");
   Serial.println(mode);
-  motors_G.setSpeeds(motorR, motorL);
+  motors_G.setSpeeds(MotorR_G, MotorL_G);
 }
 
 int waitfor( unsigned long period )

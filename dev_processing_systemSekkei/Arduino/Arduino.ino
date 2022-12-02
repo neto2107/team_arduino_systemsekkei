@@ -39,6 +39,8 @@ float speed100 = 1; //speed100で1秒間に進める距離(mm/s)
 float speed0=0; //現在の速度
 unsigned int turnTimePrev = 0;
 
+int now_Pos[2] = {0,1600/4};//x,y
+
 //move.ino---------------------------------------------------------------------
 unsigned int moveTimePre = 0;
 float move_timeStart_G = -1;
@@ -62,7 +64,17 @@ float collision_bf_angle; //前回の角度
 float collision_rc;
 float collision_prev_dist;
 
-int now_Pos[2] = {0,1600/4};//x,y
+//linetrace2.ino----------------------------------------------------------------
+int keisoku_flag;
+
+int goal,start;//ゴールは自軍向き//スタートは敵軍向き
+int color;
+int move_time, rotate_time=3000, change_time;
+float start_time;
+int pre_dist;
+
+
+
 
 //グローバル変数ここまで----------------------------------------------------------
 void setup() {
