@@ -93,8 +93,12 @@ void getCompass(){
   my = map(compass.m.y,compass.m_min.y,compass.m_max.y,-128,127);
   mz = map(compass.m.z,compass.m_min.z,compass.m_max.z,-128,127); 
   heading_G = atan2(my,mx) * 180 / M_PI;
-  setRealAccel();
   if (heading_G<0) heading_G += 360;
+  heading_G2 = heading_G - start_heading_G;
+  if (heading_G2<0) heading_G2 += 360;
+  setRealAccel();
+  
+  
   compassTimaPrev = timeNow_G;
 }
 

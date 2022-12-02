@@ -1,24 +1,6 @@
 //主に吉原作成
 
 
-#define WHITE    0 //白
-#define BLACK    1 //黒
-#define RED      2 //赤
-#define BLUE     3 //青
-#define OTHER    4 //その他
-#define INIT    10 //初期状態
-#define FORWARD 11 //直進
-#define SEARCH  12 //回転
-#define CATCH   13 //お宝取りに行く
-#define RETURN  14 //お宝取得後、帰る
-#define STOP    24 //停止
-#define BACK    25 //後退
-#define BACK2   26 //カップを外に出したあと、中を向く
-#define FORWARD2 27 //カップを検知しているときの前進処理
-#define KEISOKU 28 //カップが移動しているかどうかを読み取る
-#define ROTATE2 29 //真後ろを向く
-
-#define DIST_LINE 15
 
 unsigned int mode=INIT;
 

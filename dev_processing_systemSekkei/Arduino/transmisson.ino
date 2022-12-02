@@ -68,7 +68,7 @@ void sendRGB() {
 }
 
 void sendCompass() {
-  sendInt(heading_G);
+  sendInt(heading_G2);
 }
 
 void sendSonic(){

@@ -38,7 +38,7 @@ void setup() {
   robot3 = new Robot(new Vec2(300, 1500), 0);
   
   //Serialポートを指定 
-  port_G = new Serial(this,"COM6",9600);
+  port_G = new Serial(this,"/dev/tty.usbserial-AL01T41S",9600);
 
 
   //グリッドの生成

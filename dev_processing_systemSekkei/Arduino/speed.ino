@@ -1,7 +1,15 @@
-unsigned cal_pos_prev_time=0;
+
 //速度を計算mm/s
 void calPos(){
-  //now_Pos[0]=cos();
+  int now_time = millis();
+  now_Pos[0]+=speed0*cos(DEG_TO_RAD(heading_G2))*(now_time-speed_pos_prev_time)*0.001;
+  now_Pos[1]+=speed0*sin(DEG_TO_RAD(heading_G2))*(now_time-speed_pos_prev_time)*0.001;
+  speed_pos_prev_time = now_time;
+}
+
+void resetPos(){
+  now_Pos[0] = 0;
+  now_Pos[1] = 800;
 }
 
 float setup_speed100(){

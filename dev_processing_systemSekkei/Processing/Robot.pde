@@ -50,7 +50,7 @@ public class Robot extends Field {
     textSize(20);
     text (Integer.toString(id), -5, -13, 50, 50);
     //超音波センサーの位置を描画
-    rotate(angle);//座標軸を回転させる
+    rotate(angle +Utils.deg_to_rad(90));//座標軸を回転させる
     fill(c1);
     arc(0, 0, local_sensing_range, local_sensing_range, Utils.deg_to_rad(-105), Utils.deg_to_rad(-75));
     popMatrix();
@@ -63,6 +63,9 @@ public class Robot extends Field {
   public void setPos(Vec2 real_pos) {
     this.real_pos=real_pos;
     updatePos();
+  }
+  public Vec2 getRealPos(){
+    return this.real_pos;
   }
 
   //ロボットの角度を更新するセッター(入力がラジアン角)

@@ -1,6 +1,7 @@
+//speed100の初期化
 void calibration(){
   float speed  = -1;
-      float speed_diff;
+  float speed_diff;
   buzzer.play("L16 cdegreg4");
   while (speed <=0) {
 
@@ -23,7 +24,9 @@ void calibration(){
   MotorL_G=0;
   MotorR_G=0;
   motors_G.setSpeeds(MotorL_G, MotorR_G);
+  Serial.println(speed);
   speed100 = speed;
+
 }
 
 float calibrationSpeed(){
@@ -38,5 +41,23 @@ float calibrationSpeed(){
     return speed;
   }
   return -1;
+}
+
+float setStartDirection(){
+  getCompass();
+  switch (ROBOT_NUM) {
+  case 1:
+    start_heading_G = heading_G + 90;
+  break;
+  case 2:
+      start_heading_G = heading_G - 90;
+  break;
+  default:
+    start_heading_G = heading_G;
+  break;
+
+  }
+  if (start_heading_G<0) start_heading_G += 360;
+
 }
 

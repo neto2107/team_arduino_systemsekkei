@@ -89,6 +89,7 @@ int recvManager(Serial p, Robot robo) {
         
         l-=15; //受信した分を減らす
         println("<-A"); //データ受信タイミング
+        println("x:" + robo.getRealPos().x + "y" + robo.getRealPos().y);
         port_G.write(0xff); //バイトデータを送信(1byte)
         sof_f=0;
       } else {
