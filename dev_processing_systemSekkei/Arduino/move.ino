@@ -1,7 +1,6 @@
 
 float value;
 void mover() {
-  float speed_diff=0;
 
   if (button.isPressed()) {
     speed_reset();
@@ -12,20 +11,24 @@ void mover() {
     setStartDirection();
     Online_Mode_A = INIT;
   }
-  if(online_change_flag == true) modeChanger();
+  //if(online_change_flag == true) modeChanger();
   switch (Online_Mode_A) {
     case FORWARD:
-      speed_diff = move_forward(2000);
+      move_forward(2000);
       break;
     case ROTATE:
-      speed_diff = rotate();
+      move_rotate(90);
       break;
     case STOP:
-      speed_diff = move_stop(1000);
+      move_stop(1000);
       break;
     
+    case BACK:
+     move_back2(1000);
+      break;
+
     case INIT:
-      online_change_flag = true;     
+      //online_change_flag = true;     
       break; 
 
   }
@@ -44,8 +47,24 @@ float move_front_init(){
     move_direction = heading_G2;
     now_speed = speed100;
 }
+//指定の角度に進み続けるときに使う
+float move_front_init(int direction){
+    move_direction = direction;
+    now_speed = speed100;
+}
 float move_front(){
   speed0 = DEFAULT_SPEED;
+  return turnTo(move_direction);
+}
+
+
+float move_back_init(){
+  move_direction = heading_G2;
+  now_speed = -speed100;
+}
+
+float move_back(){
+  speed0 = -DEFAULT_SPEED;
   return turnTo(move_direction);
 }
 

@@ -3,8 +3,40 @@ int sof_f = 0; //SOFを発見したかどうかのフラグ
 int l;//受信バッファ内のデータ数
 void serialEvent(Serial p) {
   l = p.available();//受信バッファないのデータ数を取得
-  if (p == port_G&&l>=16) {
-    recvManager(p, robot1);
+  if (p == port_G) {
+    if (l>=16) {
+      recvManager(p, robot1);
+    } else if (l>=1) {
+      resendSignal(p,robot1);
+    }
+  }else if(p == port2_G){
+    if (l>=16) {
+      recvManager(p, robot2);
+    } else if (l>=1) {
+      resendSignal(p,robot2);
+    }
+  }else if(p == port3_G){
+    if (l>=16) {
+      recvManager(p, robot3);
+    } else if (l>=1) {
+      resendSignal(p,robot3);
+    }
+  }
+}
+
+void resendSignal(Serial p, Robot robo) {
+  while (l>0) {
+    if (sof_f==0) {
+      int sof = p.read();
+      if (sof == 'N') {
+        println("<--N");
+        port_G.write(0xff); //バイトデータを送信(1byte)
+        sof_f = 0;
+        p.clear();
+        l = 0;
+      }
+      l--;
+    }
   }
 }
 
@@ -23,11 +55,6 @@ int recvManager(Serial p, Robot robo) {
       }
       if (sof == 'A') {
         sof_f = 4;//超音波センサーの値受け取り
-      }
-      if (sof == 'N') {
-        println("<--N");
-        port_G.write(0xff); //バイトデータを送信(1byte)
-        sof_f = 0;
       }
       l--;//受信バッファ数を修正
     }
@@ -86,7 +113,7 @@ int recvManager(Serial p, Robot robo) {
         robo.setAccel(recvAccel(p)); //加速度の格納と表示
         robo.setSpeed(recvSpeed(p));
         robo.setPos(recvPos(p));
-        
+
         l-=15; //受信した分を減らす
         println("<-A"); //データ受信タイミング
         println("x:" + robo.getRealPos().x + "y" + robo.getRealPos().y);
@@ -119,15 +146,15 @@ int recvSonic(Serial p) {
   return recvInt(p);
 }
 
-int recvSpeed(Serial p){
+int recvSpeed(Serial p) {
   return recvInt(p);
 }
 
-int recvAccel(Serial p){
+int recvAccel(Serial p) {
   return recvInt(p);
 }
 
-Vec2 recvPos(Serial p){
+Vec2 recvPos(Serial p) {
   Vec2 pos = new Vec2();
   pos.x = recvInt(p);
   pos.y = recvInt(p);

@@ -11,7 +11,6 @@
 //Arduino.ino
 #define TRIG 2
 #define ECHO 4
-#define DEG_TO_ANG 
 #define DEFAULT_SPEED 100
 #define ROBOT_NUM 0
 
@@ -19,6 +18,8 @@
 #define FIELD_SIZE_H 1600
 
 #define DEG_TO_RAD(degree) degree*(M_PI/180)
+
+#define SONIC_THRESHOLD 30 //超音波センサーの閾値
 
 #define WHITE    0 //白
 #define BLACK    1 //黒
@@ -32,12 +33,19 @@
 #define RETURN  14 //お宝取得後、帰る
 #define DIST_LINE 15
 #define ROTATE 16
+#define LINE_TRACE 17
 #define STOP    24 //停止
 #define BACK    25 //後退
 #define BACK2   26 //カップを外に出したあと、中を向く
 #define FORWARD2 27 //カップを検知しているときの前進処理
 #define KEISOKU 28 //カップが移動しているかどうかを読み取る
 #define ROTATE2 29 //真後ろを向く
+#define BACK_TO_GOAL 30
+#define DETACT_FAILD 100 //カップの計測が失敗した
+#define DETACT_TRUE 101 //カップの計測が成功した
+#define CATCH_SUCCESS 102
+#define CATCH_FAIED 103
+#define DEBUG_MODE
 
 
 
@@ -75,9 +83,15 @@ int Online_Mode_A = INIT;
 int Online_Mode_B = INIT;
 int Online_Mode_C = INIT;
 
-bool online_change_flag = false;
+bool online_change_flag_C = false;
+bool online_change_flag_B = false;
 
+//基本動作で使う時間変数
 unsigned int online_time_prev;
+//応用動作で使う時間変数
+unsigned int online_time_prev2; 
+
+float speed_diff = 0;
 
 //color.ino--------------------------------------------------------------------
 unsigned int r_min, g_min, b_min; // このグローバル変数はこのファイル内のみで使用
@@ -120,20 +134,23 @@ unsigned int speed_pos_prev_time=0;
 void setup() {
   Serial.begin(9600);
   Wire.begin();
-  
+
   //コンパスのセットアップ
   setupCompass();
-  
+
   heading_G = 120;
   r_G = 1;
   g_G = 2;
   b_G = 3;
+
 
   //超音波センサーのセットアップ
   setupSonic();
   
   compass.m_min.x = 32767;  compass.m_min.y = 32767;  compass.m_min.z = 32767;
   compass.m_max.x = -32768;  compass.m_max.y = -32768;  compass.m_max.z = -32768;
+
+#ifndef DEBUG_MODE
   button.waitForButton(); // Zumo buttonが押されるまで待機
   calibrationCompass();
   buzzer.play("L16 cdegreg4");        // ブザーにて音楽を鳴らす
@@ -150,6 +167,8 @@ void setup() {
   button.waitForButton(); // Zumo buttonが押されるまで待機
 //  MsTimer2::set(500,calSpeed); //タイマー割り込みの間隔設定
 //  MsTimer2::start();//タイマー割り込み開始
+#endif
+
   setStartDirection();
   speed_pos_prev_time = millis();
 }
