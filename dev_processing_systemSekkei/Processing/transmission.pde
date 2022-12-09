@@ -4,41 +4,14 @@ int l;//受信バッファ内のデータ数
 void serialEvent(Serial p) {
   l = p.available();//受信バッファないのデータ数を取得
   if (p == port_G) {
-    if (l>=16) {
-      recvManager(p, robot1);
-    } else if (l>=1) {
-      resendSignal(p,robot1);
-    }
-  }else if(p == port2_G){
-    if (l>=16) {
-      recvManager(p, robot2);
-    } else if (l>=1) {
-      resendSignal(p,robot2);
-    }
-  }else if(p == port3_G){
-    if (l>=16) {
-      recvManager(p, robot3);
-    } else if (l>=1) {
-      resendSignal(p,robot3);
-    }
+    recvManager(p, robot1);
+  } else if (p == port2_G) {
+    recvManager(p, robot2);
+  } else if (p == port3_G) {
+    recvManager(p, robot3);
   }
 }
 
-void resendSignal(Serial p, Robot robo) {
-  while (l>0) {
-    if (sof_f==0) {
-      int sof = p.read();
-      if (sof == 'N') {
-        println("<--N");
-        port_G.write(0xff); //バイトデータを送信(1byte)
-        sof_f = 0;
-        p.clear();
-        l = 0;
-      }
-      l--;
-    }
-  }
-}
 
 int recvManager(Serial p, Robot robo) {
   while (l>0) {//受信バッファないにデータがある時
@@ -55,6 +28,12 @@ int recvManager(Serial p, Robot robo) {
       }
       if (sof == 'A') {
         sof_f = 4;//超音波センサーの値受け取り
+      }
+      if (sof == 'N'){
+        port_G.write(0xff); //バイトデータを送信(1byte)
+        sof_f = 0;
+        p.clear();
+        l = 0;
       }
       l--;//受信バッファ数を修正
     }
@@ -85,7 +64,7 @@ int recvManager(Serial p, Robot robo) {
         port_G.write(0xff); //バイトデータを送信(1byte)
         sof_f=0;
       } else {
-        sof_f = 0;
+        break;
       }
     }
     //超音波センサーの値受け取り
@@ -99,7 +78,7 @@ int recvManager(Serial p, Robot robo) {
         port_G.write(0xff); //バイトデータを送信(1byte)
         sof_f=0;
       } else {
-        sof_f = 0;
+        break;
       }
     }
     //超音波センサーの値受け取り
@@ -120,7 +99,7 @@ int recvManager(Serial p, Robot robo) {
         port_G.write(0xff); //バイトデータを送信(1byte)
         sof_f=0;
       } else {
-        sof_f = 0;
+        break;
       }
     }
   }
