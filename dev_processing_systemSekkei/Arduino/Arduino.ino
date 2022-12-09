@@ -11,7 +11,7 @@
 //Arduino.ino
 #define TRIG 2
 #define ECHO 4
-#define DEFAULT_SPEED 100
+#define DEFAULT_SPEED 150
 #define ROBOT_NUM 0
 
 #define FIELD_SIZE_W 2500
@@ -57,11 +57,12 @@
 #define DETACT_TRUE 101   //カップの計測が成功した
 #define CATCH_SUCCESS 102
 #define CATCH_FAIED 103
+#define BACK_TO_GOAL2 104
 
 //MODE A
 
 //デバッグモードフラグ
-#define DEBUG_MODE
+//#define DEBUG_MODE
 
 
 
@@ -89,6 +90,8 @@ float now_speed = 0;   //ロボットの速度
 float speed100 = 104;  //speed100で1秒間に進める距離(mm/s)
 float speed0 = 0;      //現在の速度
 unsigned int turnTimePrev = 0;
+
+bool serachSonicSensor = false;
 
 float now_Pos[2] = { 0, 1600 / 2 };  //x,y
 
@@ -124,8 +127,8 @@ unsigned int r_max, g_max, b_max;
 //NN関数のために新たに追加する項目
 #define max_colors 4
 unsigned int ave_colors[max_colors][3] = {
-  { 4, 6, 11 },       //黒色
   { 255, 255, 255 },  //白色
+  { 4, 6, 11 },       //黒色
   { 178, 0, 0 },      //赤
   { 0, 16, 121 }      //青
 };
@@ -205,7 +208,8 @@ void loop() {
   timeNow_G = millis();
   //カラーセンサーの値を取得
   //消さないでください
-  dist_G = distance();
+  
+
   //リセット用
   if (button.isPressed()) {
     speed_reset();
@@ -215,9 +219,10 @@ void loop() {
     moveTimePre = timeNow_G;
     resetPos();
     setStartDirection();
-    Online_Mode_A = INIT;
+    modeReseter();
   }
-  if (timeNow_G - turnTimePrev < 100) {
+
+  if (timeNow_G - turnTimePrev < 50) {  //turnto に必要
     return;
   }
   timeNow_G = millis();
@@ -227,9 +232,7 @@ void loop() {
   now_color_id = Nearest_Neighbor();
   getCompass();
   recvTusin();
-
   mover();
-
   //task();
   //printMe();
 

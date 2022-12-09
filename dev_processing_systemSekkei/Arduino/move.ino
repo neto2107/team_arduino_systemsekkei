@@ -24,9 +24,9 @@ float move_front_init(int direction){
     move_direction = direction;
     now_speed = speed100;
 }
-float move_front(){
+float move_front(){ //使わない
   speed0 = DEFAULT_SPEED;
-  return turnTo(move_direction);
+  return 0;//turnTo(move_direction);
 }
 
 

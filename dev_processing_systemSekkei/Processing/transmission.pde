@@ -83,17 +83,18 @@ int recvManager(Serial p, Robot robo) {
     }
     //超音波センサーの値受け取り
     if (sof_f == 4) {
-      if (l>=15) {
+      if (l>=17) {
         //受信したデータを格納
         color c = recvRGB(p);
         robo.setColorSensorValue(c); //ロボットにカラーセンサーの値をセット
+        robo.setColorSenserJudged(recvColorId(p));
         robo.set_degree(recvCompass(p)); //角度を取得する
         robo.setUltrasonicSensingDistance(recvSonic(p) * 10);
         robo.setAccel(recvAccel(p)); //加速度の格納と表示
         robo.setSpeed(recvSpeed(p));
         robo.setPos(recvPos(p));
 
-        l-=15; //受信した分を減らす
+        l-=16; //受信した分を減らす
         println("<-A"); //データ受信タイミング
         println("x:" + robo.getRealPos().x + "y" + robo.getRealPos().y);
         port_G.write(0xff); //バイトデータを送信(1byte)
@@ -118,6 +119,10 @@ color recvRGB(Serial p) {
   int b = p.read();
   color c = color(r, g, b);
   return c;
+}
+
+int recvColorId(Serial p){
+  return (int)p.read();
 }
 
 //超音波センサーを受信するメソッド

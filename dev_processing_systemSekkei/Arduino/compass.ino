@@ -19,6 +19,7 @@ int getAddedDirection(int addedValue) {
   direction += addedValue;
   if (direction < 0) direction += 360;
   if (direction > 360) direction -= 360;
+  return direction;
 }
 
 //戻り値:進行方向の加速度mm/s

@@ -43,6 +43,7 @@ void recvTusin() {
       if (inByte == 0xff) {
         Serial.write('A'); //文字をバイナリデータとして送信
         sendRGB();
+        sendColorId();
         sendCompass();
         sendSonic();
         sendAccel();
@@ -65,6 +66,10 @@ void sendRGB() {
   Serial.write(r);
   Serial.write(g);
   Serial.write(b);
+}
+
+void sendColorId(){
+  Serial.write((int)now_color_id);
 }
 
 void sendCompass() {
