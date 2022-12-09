@@ -1,18 +1,7 @@
 
 float value;
 void mover() {
-
-  if (button.isPressed()) {
-    speed_reset();
-    buzzer.play("L16 cdegreg4");        // ブザーにて音楽を鳴らす
-
-    button.waitForButton();
-    moveTimePre = timeNow_G;
-    resetPos();
-    setStartDirection();
-    Online_Mode_A = INIT;
-  }
-
+  
   modeChanger();
   
   MotorL_G=speed0+speed_diff;

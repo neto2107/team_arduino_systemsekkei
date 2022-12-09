@@ -30,7 +30,7 @@
 
 //Modeの定義
 //共通
-#define INIT 10     //初期状態
+#define INIT 10  //初期状態
 //MODE C
 #define FORWARD 11  //直進
 #define SEARCH 12
@@ -189,10 +189,10 @@ void setup() {
 
   button.waitForButton();  // Zumo buttonが押されるまで待機
 
-  calibration();
-  buzzer.play("L16 cdegreg4");  // ブザーにて音楽を鳴ら
+  // calibration();
+  // buzzer.play("L16 cdegreg4");  // ブザーにて音楽を鳴ら
 
-  button.waitForButton();  // Zumo buttonが押されるまで待機
+  // button.waitForButton();  // Zumo buttonが押されるまで待機
 //  MsTimer2::set(500,calSpeed); //タイマー割り込みの間隔設定
 //  MsTimer2::start();//タイマー割り込み開始
 #endif
@@ -206,6 +206,17 @@ void loop() {
   //カラーセンサーの値を取得
   //消さないでください
   dist_G = distance();
+  //リセット用
+  if (button.isPressed()) {
+    speed_reset();
+    buzzer.play("L16 cdegreg4");  // ブザーにて音楽を鳴らす
+
+    button.waitForButton();
+    moveTimePre = timeNow_G;
+    resetPos();
+    setStartDirection();
+    Online_Mode_A = INIT;
+  }
   if (timeNow_G - turnTimePrev < 100) {
     return;
   }
@@ -216,7 +227,6 @@ void loop() {
   now_color_id = Nearest_Neighbor();
   getCompass();
   recvTusin();
-  //mover();
 
   mover();
 
