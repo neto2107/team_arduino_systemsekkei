@@ -5,33 +5,16 @@ void mover() {
   if (button.isPressed()) {
     speed_reset();
     buzzer.play("L16 cdegreg4");        // ブザーにて音楽を鳴らす
+
     button.waitForButton();
     moveTimePre = timeNow_G;
     resetPos();
     setStartDirection();
     Online_Mode_A = INIT;
   }
-  //if(online_change_flag == true) modeChanger();
-  switch (Online_Mode_A) {
-    case FORWARD:
-      move_forward(2000);
-      break;
-    case ROTATE:
-      move_rotate(90);
-      break;
-    case STOP:
-      move_stop(1000);
-      break;
-    
-    case BACK:
-     move_back2(1000);
-      break;
 
-    case INIT:
-      //online_change_flag = true;     
-      break; 
-
-  }
+  modeChanger();
+  
   MotorL_G=speed0+speed_diff;
   MotorR_G=speed0-speed_diff;
   motors_G.setSpeeds(MotorL_G, MotorR_G);
@@ -78,7 +61,6 @@ float stop(){
 }
 
 float speed_reset(){
-  move_one_flag = -1;
   move_direction = heading_G2;
 }
 
