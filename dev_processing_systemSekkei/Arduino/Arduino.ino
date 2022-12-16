@@ -11,15 +11,17 @@
 //Arduino.ino
 #define TRIG 2
 #define ECHO 4
-#define DEFAULT_SPEED 150
+#define DEFAULT_SPEED 200
+#define ROTATE_SPEED 150
 #define ROBOT_NUM 0
+
 
 #define FIELD_SIZE_W 2500
 #define FIELD_SIZE_H 1600
 
 #define DEG_TO_RAD(degree) degree*(M_PI / 180)
 
-#define SONIC_THRESHOLD 30  //超音波センサーの閾値
+#define SONIC_THRESHOLD 45  //超音波センサーの閾値
 
 //色の定義
 #define WHITE 0  //白
@@ -54,6 +56,7 @@
 #define DISCOVERY 35
 #define NOT_DISCOVERY 36
 #define BACK_WIGH_RETURN_GOAL 37
+#define KEISOKU_ROTATE_BACK 38
 #define DETACT_FAILD 100  //カップの計測が失敗した
 #define DETACT_TRUE 101   //カップの計測が成功した
 #define CATCH_SUCCESS 102
@@ -76,7 +79,7 @@ Pushbutton button(ZUMO_BUTTON);
 LSM303 compass;
 ZumoBuzzer buzzer;  // ZumoBuzzer クラスのインスタンスを生成
 
-int timeNow_G;
+unsigned long timeNow_G;
 int heading_G;                   //現在向いている角度(磁気センサー)
 int heading_G2;                  //敵のゴールを0とした時の角度(左回りが正)
 int start_heading_G;             //敵側の角度
@@ -91,6 +94,8 @@ float now_speed = 0;   //ロボットの速度
 float speed100 = 104;  //speed100で1秒間に進める距離(mm/s)
 float speed0 = 0;      //現在の速度
 unsigned long turnTimePrev = 0;
+bool use_turnTo = false;
+bool moving_flag=false;
 
 bool serachSonicSensor = false;
 
@@ -151,7 +156,7 @@ int keisoku_flag;
 
 int goal, start;  //ゴールは自軍向き//スタートは敵軍向き
 int color;
-int move_time, rotate_time = 3000, change_time;
+unsigned long move_time, rotate_time = 3000, change_time;
 float start_time;
 int pre_dist;
 
@@ -204,8 +209,6 @@ void setup() {
 //  MsTimer2::set(500,calSpeed); //タイマー割り込みの間隔設定
 //  MsTimer2::start();//タイマー割り込み開始
 #endif
-
-  setStartDirection();
   speed_pos_prev_time = millis();
 }
 
@@ -225,9 +228,13 @@ void loop() {
     resetPos();
     setStartDirection();
     modeReseter();
+    moving_flag =true;
   }
 
-  if (timeNow_G - turnTimePrev < 50) {  //turnto に必要
+  if (timeNow_G - turnTimePrev < 50 && use_turnTo==true) {  //turnto に必要
+    return;
+  }
+  if(moving_flag==false){
     return;
   }
   timeNow_G = millis();

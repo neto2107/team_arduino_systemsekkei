@@ -60,6 +60,7 @@ float speed_reset(){
 //指定の方角に移動する
 float sum_e = 0;
 float turnTo(float theta_r) {
+  
   float u;
   float KP = 4.0;
   float TIinv = 2/1000.0;
@@ -84,12 +85,12 @@ float turnTo(float theta_r) {
   if ( u> 180 ) u = 180;  // 飽和
   if ( u<-180 ) u = -180; // 飽和
 
-    //位置の補正が利かないときは最速でコースアウトする
-  if(-10 < heading_G2-theta_r && heading_G2-theta_r < 10){//ほぼ理想の方向を向いてるのでこのまま
-  }
-  else if (timeNow_G - move_timeStart_G > 3000) {//3秒以上方向の転換が起こらない
-    motors_G.setSpeeds(1000, 1000);//変な方向を向いたまま戻らなければ最速でコースアウトしてスタートからやり直す
-  }
+  //   //位置の補正が利かないときは最速でコースアウトする
+  // if(-10 < heading_G2-theta_r && heading_G2-theta_r < 10){//ほぼ理想の方向を向いてるのでこのまま
+  // }
+  // else if (timeNow_G - move_timeStart_G > 3000) {//3秒以上方向の転換が起こらない
+  //   motors_G.setSpeeds(1000, 1000);//変な方向を向いたまま戻らなければ最速でコースアウトしてスタートからやり直す
+  // }
   move_thetaPrev_G = theta_r;
 
   return u;

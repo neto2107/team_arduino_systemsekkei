@@ -10,12 +10,17 @@ void modeReseter() {
   resultId_B = INIT;
   resultId_C = INIT;
   resultId_D = INIT;
+
+  
+
+  //use_turnTo = false;
 }
 
 void modeChanger() {
   switch (Online_Mode_A) {
 
     case INIT:
+      modeReseter();
       Online_Mode_A = SEARCH;
 
       break;
@@ -27,8 +32,7 @@ void modeChanger() {
       //ラインを感知したら
       now_color_id = Nearest_Neighbor();
       if(now_color_id != WHITE){ //ラインを感知したら
-        Online_Mode_A_pre = Online_Mode_A;
-        Online_Mode_A = BACK_WIGH_RETURN_GOAL;
+        set_back_with_return_fild(Online_Mode_A);
       }
       if (mode_B_IsFinished == true) {
         if (resultId_B == DISCOVERY) {
@@ -67,6 +71,10 @@ void modeChanger() {
             Online_Mode_A = SEARCH;
         }
       }
+      now_color_id = Nearest_Neighbor();
+      if(now_color_id != WHITE){ //ラインを感知したら
+        set_back_with_return_fild(SEARCH);
+      }
       break;
 
     case BACK_TO_GOAL:
@@ -75,13 +83,18 @@ void modeChanger() {
       if (mode_B_IsFinished) {
         Online_Mode_A = INIT;
       }
+      now_color_id = Nearest_Neighbor();
+      if(now_color_id != WHITE){ //ラインを感知したら
+        set_back_with_return_fild(SEARCH);
+      }
       break;
 
     case BACK_WIGH_RETURN_GOAL:
-      move_back_to_rotate(135);
+      move_back_to_rotate();
       if(mode_D_IsFinished){
         Online_Mode_A = Online_Mode_A_pre;
         Online_Mode_A_pre = INIT;
+
       }
       break;
     default:
@@ -90,6 +103,11 @@ void modeChanger() {
       break;
   }
   //mode_A_IsFinished = false;
+}
+
+void set_back_with_return_fild(int pre_mode){
+  Online_Mode_A_pre = pre_mode;
+  Online_Mode_A = BACK_WIGH_RETURN_GOAL;
 }
 //応用動作---------------------------------------------------------------------
 //Mode B
@@ -114,8 +132,6 @@ void move_ditecting(unsigned long millis_time) {
     case INIT:
       reset_Flag_B();
       Online_Mode_B = SEARCH;
-
-
       break;
     case SEARCH:  //直進、回転を繰り返す。
       //serachSonicSensor = false;
@@ -126,12 +142,10 @@ void move_ditecting(unsigned long millis_time) {
       break;
 
     case SEARCH2:
-      ditecting_direction = getAddedDirection(60);
-      move_rotate_with_millis(1500, true);
-      if (mode_C_IsFinished) {
+      move_rotate_with_millis(1000, true);
+      if (mode_C_IsFinished == true) {
         Online_Mode_B = SEARCH;
       }
-      Online_Mode_B = SEARCH;
       break;
   }
   dist_G = distance();
@@ -161,12 +175,19 @@ void move_detected() {
   switch (Online_Mode_B) {
     case INIT:
       reset_Flag_B();
-      Online_Mode_B = KEISOKU;
-      dist_G = distance();
-      move2_predist = dist_G;
+      Online_Mode_B = KEISOKU_ROTATE_BACK;
       move2_keisoku_flag = false;
       break;
+    
 
+    case KEISOKU_ROTATE_BACK:
+      //move_rotate_with_millis(0, false);
+      //if(mode_C_IsFinished == true){
+        Online_Mode_B = KEISOKU;
+        dist_G = distance();
+        move2_predist = dist_G;
+      //}
+      break;
     case KEISOKU:
       if (timeNow_G - mode_B_timePrev <= 2000) {  //1秒間計測
         move_stop(10000);
@@ -338,13 +359,14 @@ void move_rotate(int direction) {
   if (Online_Mode_C != ROTATE) {
     pre_reset_Flag_C();
     Online_Mode_C = ROTATE;
-
+    use_turnTo = true;
     speed0 = 0;
   } else if (timeNow_G - mode_C_timePrev < 1000) {
     speed_diff = turnTo(direction);
   } else {
     mode_C_IsFinished = true;
     Online_Mode_C = INIT;
+    use_turnTo=false;
   }
 }
 
@@ -357,9 +379,9 @@ void move_rotate_with_millis(unsigned long millis_time, bool right_direction) {
     speed0 = 0;
   } else if (timeNow_G - mode_C_timePrev < millis_time) {
     if (right_direction) {
-      speed_diff = speed0;
+      speed_diff = ROTATE_SPEED;
     } else {
-      speed_diff = -speed0;
+      speed_diff = -ROTATE_SPEED;
     }
   } else {
     mode_C_IsFinished = true;
@@ -371,8 +393,10 @@ void move_rotate_with_millis(unsigned long millis_time, bool right_direction) {
 //指定時間停止する
 void move_stop(unsigned long millis_time) {
   if (Online_Mode_C != STOP) {
+    speed_diff = 0;
     pre_reset_Flag_C();
     Online_Mode_C = STOP;
+
 
     stop_init();
   } else if (timeNow_G - mode_C_timePrev <= millis_time) {
@@ -387,7 +411,7 @@ void move_stop(unsigned long millis_time) {
 
 int after_direction = 0;
 //後退した後、指定角度足した向きを向く
-void move_back_to_rotate(int added_direction) {
+void move_back_to_rotate() {
 
   switch (Online_Mode_D) {
     case INIT:
@@ -400,12 +424,11 @@ void move_back_to_rotate(int added_direction) {
       move_back2(500);
       if (mode_C_IsFinished == true) {
         Online_Mode_D = ROTATE;
-        after_direction = getAddedDirection(added_direction);
       }
       break;
 
     case ROTATE:
-      move_rotate(after_direction);
+      move_rotate_with_millis(500, true);
       if (mode_C_IsFinished) {
         Online_Mode_D = INIT;
         mode_D_IsFinished = true;
