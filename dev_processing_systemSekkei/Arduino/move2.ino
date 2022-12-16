@@ -12,7 +12,8 @@ void modeReseter() {
   resultId_D = INIT;
 
   
-
+  speed0 = 0;
+  speed_diff = 0;
   //use_turnTo = false;
 }
 
@@ -126,6 +127,7 @@ void reset_Flag_B() {
 *発見時 DISCOVERY
 *未発見時 NOT_DISCOVERY
 */
+int direction_time=1000;
 void move_ditecting(unsigned long millis_time) {
 
   switch (Online_Mode_B) {
@@ -138,11 +140,12 @@ void move_ditecting(unsigned long millis_time) {
       move_forward(2000);
       if (mode_C_IsFinished == true) {
         Online_Mode_B = SEARCH2;
+        direction_time = random(300,800);
       }
       break;
 
     case SEARCH2:
-      move_rotate_with_millis(1000, true);
+      move_rotate_with_millis(direction_time, true);
       if (mode_C_IsFinished == true) {
         Online_Mode_B = SEARCH;
       }
@@ -274,7 +277,7 @@ void back_to_goal() {
       break;
 
     case REACHED_GOAL2:
-      move_rotate(0);
+      move_rotate(10);
       if (mode_C_IsFinished == true) {
         Online_Mode_B = INIT;
         mode_B_IsFinished = true;  //動作終了
