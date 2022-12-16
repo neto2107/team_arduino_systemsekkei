@@ -1,7 +1,7 @@
 #define CALIBRATION_SAMPLES 70   // Number of compass readings to take when calibrating
 #define CRB_REG_M_2_5GAUSS 0x60  // CRB_REG_M value for magnetometer +/-2.5 gauss full scale
 #define CRA_REG_M_220HZ 0x1C     // CRA_REG_M value for magnetometer 220 Hz update rate
-unsigned int compassTimaPrev = 0;
+unsigned long compassTimaPrev = 0;
 float accel_prev_value = 0;
 float real_accel_offset = 0;
 

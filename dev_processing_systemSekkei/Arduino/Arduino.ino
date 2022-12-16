@@ -53,6 +53,7 @@
 #define SEARCH3 34
 #define DISCOVERY 35
 #define NOT_DISCOVERY 36
+#define BACK_WIGH_RETURN_GOAL 37
 #define DETACT_FAILD 100  //カップの計測が失敗した
 #define DETACT_TRUE 101   //カップの計測が成功した
 #define CATCH_SUCCESS 102
@@ -89,17 +90,18 @@ float real_a;
 float now_speed = 0;   //ロボットの速度
 float speed100 = 104;  //speed100で1秒間に進める距離(mm/s)
 float speed0 = 0;      //現在の速度
-unsigned int turnTimePrev = 0;
+unsigned long turnTimePrev = 0;
 
 bool serachSonicSensor = false;
 
 float now_Pos[2] = { 0, 1600 / 2 };  //x,y
 
 //move.ino---------------------------------------------------------------------
-unsigned int moveTimePre = 0;
+unsigned long moveTimePre = 0;
 float move_timeStart_G = -1;
 float move_thetaPrev_G;
 int Online_Mode_A = INIT;
+int Online_Mode_A_pre = INIT;
 int Online_Mode_B = INIT;
 int Online_Mode_C = INIT;
 int Online_Mode_D = INIT;
@@ -114,9 +116,12 @@ bool mode_B_IsFinished = false;
 bool mode_D_IsFinished = false;
 
 //基本動作で使う時間変数
-unsigned int online_time_prev;
+
 //応用動作で使う時間変数
-unsigned int mode_B_timePrev;
+unsigned long mode_B_timePrev;
+unsigned long mode_C_timePrev;
+unsigned long mode_D_timePrev;
+
 
 float speed_diff = 0;
 
@@ -151,7 +156,7 @@ float start_time;
 int pre_dist;
 
 //speed.ino============---------------------------------------------------------
-unsigned int speed_pos_prev_time = 0;
+unsigned long speed_pos_prev_time = 0;
 
 
 
@@ -229,7 +234,7 @@ void loop() {
   calPos();
   //カラーセンサーの値を取得
   getRGB(r_G, g_G, b_G);
-  now_color_id = Nearest_Neighbor();
+  //now_color_id = Nearest_Neighbor();
   getCompass();
   recvTusin();
   mover();

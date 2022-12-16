@@ -30,7 +30,7 @@ void calibration(){
 }
 
 float calibrationSpeed(){
-  unsigned int speedPrev;
+  unsigned long speedPrev;
   
   if(Nearest_Neighbor()==3){
     speedPrev = millis();
