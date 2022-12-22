@@ -1,11 +1,12 @@
 
 void linetrace_init(){
   now_speed = speed100;
+  speed0 = 100;
 }
 //引数
 //回転方向0→反時計回り
 //回転方向1→時計回り
-float linetrace_P(int mode)
+float linetrace_P(bool right_rotate)
 {
   static float lightMin = (r_min + g_min + b_min) /3 ; // 各自で設定
   static float lightMax = (r_max + g_max + b_max) /3; // 各自で設定 （わざとエラーが出るようにしてある）
@@ -20,7 +21,9 @@ float linetrace_P(int mode)
   //平均より大きい→明るい(ライン上にない。)→正の値
   Kp = lightNow - ((lightMin + lightMax) / 2.0);
   //回転方向によって(motor_mode_Gによって)分岐させる
-  if(mode){
+  //Serial.println("speedDiff:%f",speedDiff);
+  Serial.println(speedDiff);
+  if(right_rotate == false){
     speedDiff = Kp/70 *(float)speed0;//反時計回り
   }else{
     speedDiff = -Kp/70 *(float)speed0;//時計回り(speedDiffの正負を判定させる。)

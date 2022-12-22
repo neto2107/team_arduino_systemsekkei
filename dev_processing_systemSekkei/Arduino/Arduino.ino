@@ -14,6 +14,8 @@
 #define DEFAULT_SPEED 200
 #define ROTATE_SPEED 150
 #define ROBOT_NUM 0
+#define LEFT_SPEED_OFFSET 0
+#define RIGHT_SPEED_OFFSET 0
 
 
 #define FIELD_SIZE_W 2500
@@ -127,6 +129,7 @@ unsigned long mode_B_timePrev;
 unsigned long mode_C_timePrev;
 unsigned long mode_D_timePrev;
 
+unsigned long direction_time = 1000;
 
 float speed_diff = 0;
 
@@ -243,7 +246,7 @@ void loop() {
   getRGB(r_G, g_G, b_G);
   //now_color_id = Nearest_Neighbor();
   getCompass();
-  recvTusin();
+  //recvTusin();
   mover();
   //task();
   //printMe();

@@ -4,8 +4,8 @@ void mover() {
   
   modeChanger();
   
-  MotorL_G=speed0+speed_diff;
-  MotorR_G=speed0-speed_diff;
+  MotorL_G=speed0+speed_diff + LEFT_SPEED_OFFSET;
+  MotorR_G=speed0-speed_diff + RIGHT_SPEED_OFFSET;
   motors_G.setSpeeds(MotorL_G, MotorR_G);
 }
 
@@ -45,6 +45,8 @@ float move_back(){
 float stop_init(){
   move_direction = heading_G2;
   now_speed = 0;
+  speed0 = 0;
+  return 0;
 }
 float stop(){
   speed0 = 0;
