@@ -8,8 +8,8 @@ void linetrace_init(){
 //回転方向1→時計回り
 float linetrace_P(bool right_rotate)
 {
-  static float lightMin = (r_min + g_min + b_min) /3 ; // 各自で設定
-  static float lightMax = (r_max + g_max + b_max) /3; // 各自で設定 （わざとエラーが出るようにしてある）
+  static float lightMin = (r_min + g_min + b_min) /3.0; // 各自で設定
+  static float lightMax = (r_max + g_max + b_max) /3.0; // 各自で設定 （わざとエラーが出るようにしてある）
   static float Kp = 0; // パラメーター
   float lightNow;//現在のカラーセンサーのグレースケール値
   float speedDiff;//補正用の速度の偏差
@@ -22,7 +22,6 @@ float linetrace_P(bool right_rotate)
   Kp = lightNow - ((lightMin + lightMax) / 2.0);
   //回転方向によって(motor_mode_Gによって)分岐させる
   //Serial.println("speedDiff:%f",speedDiff);
-  Serial.println(speedDiff);
   if(right_rotate == false){
     speedDiff = Kp/70 *(float)speed0;//反時計回り
   }else{

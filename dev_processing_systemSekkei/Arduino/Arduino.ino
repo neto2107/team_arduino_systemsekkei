@@ -12,8 +12,9 @@
 #define TRIG 2
 #define ECHO 4
 #define DEFAULT_SPEED 200
+#define HIGH_SPEED 400
 #define ROTATE_SPEED 150
-#define ROBOT_NUM 0
+#define ROBOT_NUM 0 //0 自ゴールから見て正面 , 1:自ゴールから見て右 2:自ゴールから見て左
 #define LEFT_SPEED_OFFSET 0
 #define RIGHT_SPEED_OFFSET 0
 
@@ -59,6 +60,9 @@
 #define NOT_DISCOVERY 36
 #define BACK_WIGH_RETURN_GOAL 37
 #define KEISOKU_ROTATE_BACK 38
+#define MEANDERING_DRIVING 39
+#define FIRST_MOVING 40
+#define FIRST_MOVING2 41
 #define DETACT_FAILD 100  //カップの計測が失敗した
 #define DETACT_TRUE 101   //カップの計測が成功した
 #define CATCH_SUCCESS 102
@@ -117,6 +121,8 @@ int resultId_A = INIT;
 int resultId_B = INIT;
 int resultId_C = INIT;
 int resultId_D = INIT;
+
+unsigned long mode_A_time_set = 0;
 
 bool mode_C_IsFinished = false;
 bool mode_B_IsFinished = false;
