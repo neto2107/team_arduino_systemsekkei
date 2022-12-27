@@ -2,7 +2,7 @@
 void collisionCheck() {//前進してるはずなのに何らかの理由で前進できていないときにブザーがなる
   heading_G = atan2(my,mx) * 180 / M_PI;
 
-  if(speed0>=100 && collision_prev_dist-dist_G <1) {
+  if(speed0>=100 && collision_prev_dist-dist_G <1&&dist_G != -1) {
     buzzer.play(">c32");
   }
   collision_prev_dist=dist_G;

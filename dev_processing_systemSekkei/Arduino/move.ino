@@ -25,15 +25,21 @@ float move_meandering_driving_init() {
   speed0 = DEFAULT_SPEED;
 }
 
+//蛇行運転を行うプログラム
 float move_meandering_driving() {
   move_direction = heading_G2;
-  return speed0 * sin((timeNow_G - move_meandering_driving_time_prev) / 100);
+
+  unsigned long timediff =timeNow_G - move_meandering_driving_time_prev;
+  if(timediff > 6283/2) move_meandering_driving_time_prev = timeNow_G;
+
+  float spd = speed0 * 0.3* sin((timediff/ 500.0)); //スピードの差分
+  return spd;
 }
 
 float move_front_init(bool high_speed_flag) {
   move_direction = heading_G2;
   if (high_speed_flag) {
-    now_speed = speed100 * 2; //要改善
+    now_speed = speed100 * 2;  //要改善
   } else {
     now_speed = speed100;
   }

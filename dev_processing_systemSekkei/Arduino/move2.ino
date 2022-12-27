@@ -33,8 +33,10 @@ void modeChanger() {
 
     case INIT:
       modeReseter();
-      if(ROBOT_NUM == 1){
-      Online_Mode_A = SEARCH;
+      if(ROBOT_NUM == 0){
+        Online_Mode_A = SEARCH;
+        mode_A_time_set = 10000;
+
       }else{
         Online_Mode_A = FIRST_MOVING;
       }
@@ -55,13 +57,14 @@ void modeChanger() {
           Online_Mode_A = SEARCH2;
 
         } else if (resultId_B == NOT_DISCOVERY) {
-          Online_Mode_A = MEANDERING_DRIVING;
+          Online_Mode_A = SEARCH;
           mode_A_time_set = 10000;
         }
       }
       break;
     
     case MEANDERING_DRIVING: //蛇行運転をしながら探す
+
       meandering_driving(mode_A_time_set); //要ライン外に出たときのプログラム
       if (mode_B_IsFinished == true) {
         mode_A_time_set = 0; //リセット
@@ -70,6 +73,7 @@ void modeChanger() {
 
         } else if (resultId_B == NOT_DISCOVERY) {
           Online_Mode_A = MEANDERING_DRIVING;
+          mode_A_time_set = 10000;
         }
       }
       break;
@@ -112,7 +116,7 @@ void modeChanger() {
       //buzzer.play("!L16 f");
       back_to_goal();
       if (mode_B_IsFinished == true) {
-        Online_Mode_A = MEANDERING_DRIVING;
+        Online_Mode_A = SEARCH;
       }
       break;
 
@@ -313,7 +317,7 @@ void back_to_goal() {
       //Serial.println("back_to_goal2");
       now_color_id = Nearest_Neighbor();
       if (now_color_id == RED || now_color_id == BLUE) {
-        Online_Mode_B = REACHED_GOAL;
+        Online_Mode_B = LINE_TRACE;
       } else if (now_color_id == BLACK) {
         Online_Mode_B = LINE_TRACE;
       }
@@ -337,11 +341,9 @@ void back_to_goal() {
       }
       break;
     case LINE_TRACE:
+      buzzer.play("!L16 d");
       move_linetrace(20000, false);
-      //now_color_id = Nearest_Neighbor();
-      // if (now_color_id == RED || now_color_id == BLUE) {
-      //   Online_Mode_B = REACHED_GOAL;
-      // }
+      now_color_id = Nearest_Neighbor();
 
       break;
 
@@ -362,9 +364,12 @@ void meandering_driving(unsigned long millis_time) {
       reset_Flag_B();
       Online_Mode_B = MEANDERING_DRIVING;
       move_meandering_driving_init();
+      Serial.println("INIT");
+      break;
 
     case MEANDERING_DRIVING:
-      move_meandering_driving();
+      speed_diff =move_meandering_driving();
+      dist_G = distance();
       now_color_id = Nearest_Neighbor();
       if(now_color_id !=WHITE){
         stop_init();
@@ -377,15 +382,19 @@ void meandering_driving(unsigned long millis_time) {
       move_back_to_rotate();
       if(mode_D_IsFinished){
         reset_Flag_C();
-        Online_Mode_B = MEANDERING_DRIVING;
+        Online_Mode_B = INIT;
       }
       break;
     default:
       reset_Flag_B();
+      Online_Mode_B = INIT;
       break;
   }
-  dist_G = distance();
-  if (dist_G < SONIC_THRESHOLD && dist_G > 0) {  //発見したら
+        //buzzer.play("!L16 c");
+
+  //Serial.print("distance:");
+  //Serial.println(dist_G);
+  if (dist_G > 0) {  //発見したら
     move_stop(10000);
     resultId_B = DISCOVERY;
     Online_Mode_B = INIT;
@@ -586,6 +595,7 @@ void move_back_to_rotate() {
 }
 
 void move_linetrace(unsigned long millis_time, bool right_rotate) {
+
   switch (Online_Mode_D) {
     case INIT:
       pre_reset_Flag_C();
@@ -599,16 +609,15 @@ void move_linetrace(unsigned long millis_time, bool right_rotate) {
       if (now_color_id == WHITE) {
         speed_diff = stop_init();
         linetrace_init();
-        Online_Mode_D == LINE_TRACE;
+        Online_Mode_D = LINE_TRACE;
       }
       break;
     case LINE_TRACE:
       speed_diff = linetrace_P(right_rotate);
-      Serial.println(speed_diff);
       if (timeNow_G - mode_D_timePrev > millis_time) {
         mode_D_IsFinished = true;
         Online_Mode_D = INIT;
-        speed_diff = stop_init();
+        //speed_diff = stop_init();
       }
       break;
   }
