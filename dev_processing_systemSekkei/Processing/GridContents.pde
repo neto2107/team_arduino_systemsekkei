@@ -122,10 +122,10 @@ public class GridContents extends Grid {
     textSize(50);
     switch(judge) {
     case 0://判定値が黒なら
-      text ("Black", -55, -5, 150, 100);
+      text ("White", -55, -5, 150, 100);
       break;
     case 1: //判定値が白なら
-      text ("White", -55, -5, 150, 100);
+      text ("Black", -55, -5, 150, 100);
       break;
     case 2:
       text ("Red", -55, -5, 150, 100);
@@ -134,6 +134,9 @@ public class GridContents extends Grid {
       text("Blue", -55, -5, 150, 100);
       break;
     }
+    String color_txt = Float.toString(red(sensored_color)) + ","+Float.toString(green(sensored_color))+","+Float.toString(blue(sensored_color));
+        textSize(25);
+    text(color_txt,-100, 140,200,80);
     popStyle();
     popMatrix();
   }

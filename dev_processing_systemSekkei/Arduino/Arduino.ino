@@ -13,7 +13,7 @@
 #define ECHO 4
 #define DEFAULT_SPEED 200
 #define HIGH_SPEED 400
-#define ROTATE_SPEED 150
+#define ROTATE_SPEED 120
 #define ROBOT_NUM 0 //0 自ゴールから見て正面 , 1:自ゴールから見て右 2:自ゴールから見て左
 #define LEFT_SPEED_OFFSET 0
 #define RIGHT_SPEED_OFFSET 0
@@ -56,6 +56,10 @@
 #define REACHED_GOAL2 32
 #define SEARCH2 33
 #define SEARCH3 34
+#define REACHED_GOAL3 35
+#define REACHED_GOAL4 36
+#define BACK_TO_GOAL3 37
+
 #define DISCOVERY 35
 #define NOT_DISCOVERY 36
 #define BACK_WIGH_RETURN_GOAL 37
@@ -63,6 +67,7 @@
 #define MEANDERING_DRIVING 39
 #define FIRST_MOVING 40
 #define FIRST_MOVING2 41
+#define SEARCH4 42
 #define DETACT_FAILD 100  //カップの計測が失敗した
 #define DETACT_TRUE 101   //カップの計測が成功した
 #define CATCH_SUCCESS 102
@@ -128,6 +133,8 @@ bool mode_C_IsFinished = false;
 bool mode_B_IsFinished = false;
 bool mode_D_IsFinished = false;
 
+bool ditect_flag = false; //カップを見つけたときのフラグ
+
 //基本動作で使う時間変数
 
 //応用動作で使う時間変数
@@ -136,6 +143,8 @@ unsigned long mode_C_timePrev;
 unsigned long mode_D_timePrev;
 
 unsigned long direction_time = 1000;
+
+
 
 float speed_diff = 0;
 
@@ -252,7 +261,7 @@ void loop() {
   getRGB(r_G, g_G, b_G);
   //now_color_id = Nearest_Neighbor();
   getCompass();
-  //recvTusin();
+  recvTusin();
   mover();
   //task();
   //printMe();

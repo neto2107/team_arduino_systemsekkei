@@ -63,6 +63,7 @@ float move_front_init(int direction) {
 float move_back_init() {
   move_direction = heading_G2;
   now_speed = -speed100;
+  speed_diff = 0;
 }
 
 float move_back() {
@@ -74,6 +75,7 @@ float stop_init() {
   move_direction = heading_G2;
   now_speed = 0;
   speed0 = 0;
+  speed_diff = 0;
   return 0;
 }
 float stop() {
@@ -85,6 +87,7 @@ float stop() {
 float speed_reset() {
   move_direction = heading_G2;
 }
+
 
 
 
