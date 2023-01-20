@@ -52,6 +52,7 @@ void modeChanger() {
         set_back_with_return_fild(Online_Mode_A);  //中断してライン内に戻す
         reset_Flag_B();
       }
+      //Modebが終了したら
       if (mode_B_IsFinished == true) {
         if (resultId_B == DISCOVERY) {
           Online_Mode_A = SEARCH2;
@@ -63,20 +64,20 @@ void modeChanger() {
       }
       break;
     
-    case MEANDERING_DRIVING: //蛇行運転をしながら探す
+    // case MEANDERING_DRIVING: //蛇行運転をしながら探す
 
-      meandering_driving(mode_A_time_set); //要ライン外に出たときのプログラム
-      if (mode_B_IsFinished == true) {
-        mode_A_time_set = 0; //リセット
-        if (resultId_B == DISCOVERY) {
-          Online_Mode_A = SEARCH2;
+    //   meandering_driving(mode_A_time_set); //要ライン外に出たときのプログラム
+    //   if (mode_B_IsFinished == true) {
+    //     mode_A_time_set = 0; //リセット
+    //     if (resultId_B == DISCOVERY) {
+    //       Online_Mode_A = SEARCH2;
 
-        } else if (resultId_B == NOT_DISCOVERY) {
-          Online_Mode_A = MEANDERING_DRIVING;
-          mode_A_time_set = 10000;
-        }
-      }
-      break;
+    //     } else if (resultId_B == NOT_DISCOVERY) {
+    //       Online_Mode_A = MEANDERING_DRIVING;
+    //       mode_A_time_set = 10000;
+    //     }
+    //   }
+    //   break;
 
     case SEARCH2:
       buzzer.play("!L16 d");
@@ -142,7 +143,7 @@ void modeChanger() {
         move_rotate(90); //右をむく
       }
       if(mode_C_IsFinished == true){
-        Online_Mode_A = MEANDERING_DRIVING;
+        Online_Mode_A = SEARCH;
       }
       break;
 
@@ -197,7 +198,8 @@ void move_ditecting(unsigned long millis_time) {
 
     case SEARCH2:
 
-      move_rotate_with_millis(direction_time, true);
+      //move_rotate_with_millis(direction_time, true);
+      move_stop_and_rotate_with_millis(direction_time,true,100,30)
       if (mode_C_IsFinished == true) {
         Online_Mode_B = SEARCH;
       }
@@ -244,8 +246,8 @@ void move_detected() {
       //}
       break;
     case KEISOKU:
-      if (timeNow_G - mode_B_timePrev <= 2000) {  //1秒間計測
-        move_stop(10000);
+      if (timeNow_G - mode_B_timePrev <= 1000) {  //1秒間計測
+        stop_init();
         dist_G = distance();
         if (dist_G < pre_dist - 5 && dist_G > pre_dist + 5) {  //distが+-3の範囲に収まっていないなら
           move2_keisoku_flag = true;                           //フラグを1にする
@@ -278,17 +280,17 @@ void move_catch() {
     case CATCH:
       dist_G = distance();
       if (dist_G <= SONIC_THRESHOLD) {
-        move_forward(10000);
+        stop_init();
 
         if (dist_G <= 4) {  //キャッチしたと判断したときは
-          move_stop(0);     //停止する
+          stop_init();     //停止する
           resultId_B = CATCH_SUCCESS;
           Online_Mode_B = INIT;      //キャッチが成功
           mode_B_IsFinished = true;  //遷移モードにする
         }
       } else {
         //途中で見失ってしまったときは
-        move_stop(0);  //停止させる
+        stop_init();  //停止させる
         resultId_B = CATCH_FAIED;
         Online_Mode_B = INIT;      //キャッチが失敗
         mode_B_IsFinished = true;  //遷移モードにする
@@ -543,6 +545,42 @@ void move_rotate_with_millis(unsigned long millis_time, bool right_direction) {
 }
 
 
+//一時停止しながら回転する
+void move_stop_and_rotate_with_millis(unsigned long millis_time,bool isRight,unsigned long rotate_time,unsigned long stop_time){
+  static unsigned long judge_time;
+  switch(Online_Mode_C){
+    case ROTATE:
+      if(isRight){
+        speed_diff = ROTATE_SPEED;
+      }else{
+        speed_diff =-ROTATE_SPEED;
+      }
+      if(timeNow_G - mode_C_timePrev > judge_time){
+        Online_Mode_C = STOP;
+        judge_time += stop_time;
+      }
+      break;
+    
+    case STOP:
+      stop_init();
+      if(timeNow_G - mode_C_timePrev > judge_time){
+        Online_Mode_C = ROTATE;
+        judge_time += rotate_time;
+      }
+      break;    
+    default:
+      pre_reset_Flag_C();
+      Online_Mode_C = ROTATE2;
+      judge_time = rotate_time;
+
+  }
+  if(timeNow_G - mode_C_timePrev > millis_time){
+    mode_C_IsFinished = true;
+    Online_Mode_C = INIT;
+  }
+}
+
+
 //指定時間停止する
 void move_stop(unsigned long millis_time) {
   if (Online_Mode_C != STOP) {
@@ -556,6 +594,7 @@ void move_stop(unsigned long millis_time) {
     speed_diff = stop();
   } else {
     mode_C_IsFinished = true;
+    Online_Mode_C = INIT;
   }
 }
 //----------------------------------------------------------------------------------
