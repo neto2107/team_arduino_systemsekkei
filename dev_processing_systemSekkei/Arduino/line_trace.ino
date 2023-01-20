@@ -32,7 +32,7 @@ float linetrace_P(bool right_rotate) {
 int identifyColor(int red, int green, int blue) {
   float d2;
   float d2_max = 50;  // パラメーター（適宜調整）
-  d2 = pow(red - red_G, 2) + pow(green - green_G, 2) + pow(blue - blue_G, 2);
+  d2 = pow(red - r_G, 2) + pow(green - g_G, 2) + pow(blue - b_G, 2);
   if (d2 < d2_max * d2_max)
     return 1;
   else

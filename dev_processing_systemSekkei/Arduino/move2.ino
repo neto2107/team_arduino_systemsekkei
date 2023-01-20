@@ -199,7 +199,7 @@ void move_ditecting(unsigned long millis_time) {
     case SEARCH2:
 
       //move_rotate_with_millis(direction_time, true);
-      move_stop_and_rotate_with_millis(direction_time,true,100,30)
+      move_stop_and_rotate_with_millis(direction_time,true,100,30);
       if (mode_C_IsFinished == true) {
         Online_Mode_B = SEARCH;
       }
