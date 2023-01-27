@@ -34,7 +34,7 @@ void modeChanger() {
     case INIT:
       modeReseter();
       if (ROBOT_NUM == 0) {
-        Online_Mode_A = SEARCH;
+        Online_Mode_A = FIRST_MOVING;
         mode_A_time_set = 10000;
 
       } else {
@@ -462,28 +462,35 @@ void meandering_driving(unsigned long millis_time) {
   }
 }
 
-void goToCenter() {
-  switch (Online_Mode_B) {
+void goToCenter(){////////////////////////////////////////////////////////////////////////////////////////////////
+  switch(Online_Mode_B){
     case INIT:
       reset_Flag_B();
       Online_Mode_B = ROTATE;
-
+    
+    
     case ROTATE:
       move_rotate(0);
-      if (mode_C_IsFinished) {
+      if(mode_C_IsFinished){
         Online_Mode_B = FORWARD;
       }
       break;
 
+
     case FORWARD:
-      move_forward_high_speed(10000);  //時間は要調整
-      if (mode_C_IsFinished == true) {
+    if(ROBOT_NUM == 0){
+    move_forward_high_speed(4000); //時間は要調整
+    }else{
+      move_forward_high_speed(2000); //時間は要調整
+  }
+      if(mode_C_IsFinished == true){
         stop_init();
         stop();
-        Online_Mode_B = INIT;
-        mode_B_IsFinished = true;
+       Online_Mode_B = INIT;
+       mode_B_IsFinished = true;
       }
       break;
+      
   }
 }
 
