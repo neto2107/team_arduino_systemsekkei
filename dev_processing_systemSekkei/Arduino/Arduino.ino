@@ -4,7 +4,15 @@
 #include <Pushbutton.h>
 #include <LSM303.h>
 #include <ZumoBuzzer.h>  // ブザーライブラリの読み込み
+//黒　41,58,1
+//赤 157,79,30
+//青 41,75,66
+//白 255,255,255
+//黒2 98,127,75
+//青2 109,150,129
+//
 
+//赤2 187,140,96 170,114,68
 
 //ここからグローバル変数-------------------------------------------------------------
 
@@ -12,11 +20,12 @@
 #define TRIG 2
 #define ECHO 4
 #define DEFAULT_SPEED 200
+#define LOW_SPEED 150
 #define HIGH_SPEED 400
 #define ROTATE_SPEED 120
-#define ROBOT_NUM 0 //0 自ゴールから見て正面 , 1:自ゴールから見て右 2:自ゴールから見て左
-#define LEFT_SPEED_OFFSET 0
-#define RIGHT_SPEED_OFFSET 0
+#define ROBOT_NUM 1 //0 自ゴールから見て正面 , 1:自ゴールから見て右 2:自ゴールから見て左
+#define LEFT_SPEED_OFFSET 1
+#define RIGHT_SPEED_OFFSET 1
 
 
 #define FIELD_SIZE_W 2500
@@ -24,7 +33,7 @@
 
 #define DEG_TO_RAD(degree) degree*(M_PI / 180)
 
-#define SONIC_THRESHOLD 45  //超音波センサーの閾値
+#define SONIC_THRESHOLD 200  //超音波センサーの閾値
 
 //色の定義
 #define WHITE 0  //白
@@ -262,7 +271,7 @@ void loop() {
   //now_color_id = Nearest_Neighbor();
   getCompass();
   recvTusin();
-  mover();
+  //mover();
   //task();
   //printMe();
 

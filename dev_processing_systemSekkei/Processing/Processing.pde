@@ -11,6 +11,11 @@ Serial port_G;//シリアル「ポート
 Serial port2_G;
 Serial port3_G;
 
+public Robot robot1;
+public Robot robot2;
+public Robot robot3;
+
+
 MyButton button_field;
 MyButton button_robot1;
 MyButton button_robot2;
@@ -38,7 +43,8 @@ void setup() {
   robot3 = new Robot(new Vec2(300, 1500),-90);
   
   //Serialポートを指定 
-  port_G = new Serial(this,"COM8",9600);
+  port_G = new Serial(this,"COM10",9600);  
+  port2_G = new Serial(this,"COM12",9600);
 
 
   //グリッドの生成

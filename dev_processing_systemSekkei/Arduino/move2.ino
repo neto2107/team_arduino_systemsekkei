@@ -1,7 +1,6 @@
 
 void modeReseter() {
   Online_Mode_A = INIT;
-  Online_Mode_A_pre = INIT;
   Online_Mode_B = INIT;
   Online_Mode_C = INIT;
   Online_Mode_D = INIT;
@@ -124,6 +123,7 @@ void modeChanger() {
     case BACK_WIGH_RETURN_GOAL:
       move_back_to_rotate();
       if (mode_D_IsFinished) {
+        modeReseter();
         Online_Mode_A = Online_Mode_A_pre;
         Online_Mode_A_pre = INIT;
       }
@@ -192,14 +192,14 @@ void move_ditecting(unsigned long millis_time) {
       move_forward(1000);
       if (mode_C_IsFinished == true) {
         Online_Mode_B = SEARCH2;
-        direction_time = random(900, 1500);
+        direction_time = random(2000, 3500);
       }
       break;
 
     case SEARCH2:
 
-      move_rotate_with_millis(direction_time, true);
-      //move_stop_and_rotate_with_millis(direction_time, true, 100, 100);
+      //move_rotate_with_millis(direction_time, true);
+      move_stop_and_rotate_with_millis(direction_time, true, 150, 150);
       if (mode_C_IsFinished == true) {
         Online_Mode_B = SEARCH;
       }
@@ -227,7 +227,6 @@ void move_ditecting(unsigned long millis_time) {
       }
       break;
   }
-  dist_G = distance();
   if (dist_G < SONIC_THRESHOLD && dist_G > 0 && Online_Mode_B == SEARCH2) {  //発見したら
     resultId_B = DISCOVERY;
     mode_B_IsFinished = true;
@@ -304,10 +303,13 @@ void move_catch() {
         move_forward(2000);
 
         if (dist_G <= 4) {  //キャッチしたと判断したときは
-          stop_init();      //停止する
-          resultId_B = CATCH_SUCCESS;
-          Online_Mode_B = INIT;      //キャッチが成功
-          mode_B_IsFinished = true;  //遷移モードにする
+          move_forward_low_speed(200); //少し前進して
+          if (mode_C_IsFinished) {
+            stop_init();  //停止する
+            resultId_B = CATCH_SUCCESS;
+            Online_Mode_B = INIT;      //キャッチが成功
+            mode_B_IsFinished = true;  //遷移モードにする
+          }
         }
       } else {
         //途中で見失ってしまったときは
@@ -320,8 +322,10 @@ void move_catch() {
   }
 }
 
+
 //ゴールに帰ってくるときの動作
 void back_to_goal() {
+  static bool isRight;  //回転方向のフラグ
   switch (Online_Mode_B) {
     case INIT:
 
@@ -339,7 +343,7 @@ void back_to_goal() {
       move_forward(10000L);
       //Serial.println("back_to_goal2");
       now_color_id = Nearest_Neighbor();
-      if(now_color_id != WHITE){
+      if (now_color_id != WHITE) {
         stop_init();
         reset_Flag_C();
         Online_Mode_B = BACK_TO_GOAL3;
@@ -353,14 +357,16 @@ void back_to_goal() {
         Online_Mode_B = REACHED_GOAL3;
 
       } else if (now_color_id == BLACK) {
+        if (heading_G2 >= 0 && heading_G2 < 180) isRight = true;
+        else if (heading_G2 >= 180, heading_G2 < 360) isRight = false;
         Online_Mode_B = LINE_TRACE;
       }
-      
+
       break;
 
     case REACHED_GOAL:  //ゴールに到達したら
       //2秒間ライントレース
-      move_linetrace(1500, false);
+      move_linetrace(1500, isRight);
       if (mode_D_IsFinished == true) {
         Online_Mode_B = REACHED_GOAL2;
         end_reset_flag_D();
@@ -369,7 +375,7 @@ void back_to_goal() {
       break;
 
     case REACHED_GOAL2:
-      move_rotate_with_millis(1500, true);
+      move_rotate_with_millis(1500, !isRight);
       buzzer.play("!L16 c");
       if (mode_C_IsFinished == true) {
         Online_Mode_B = REACHED_GOAL3;
@@ -377,7 +383,7 @@ void back_to_goal() {
       break;
 
     case REACHED_GOAL3:
-      move_forward(500);
+      move_forward(250);
       if (mode_C_IsFinished == true) {
         stop_init();
         Online_Mode_B = REACHED_GOAL4;
@@ -386,7 +392,7 @@ void back_to_goal() {
 
     case REACHED_GOAL4:
       move_back2(1000);
-      if(mode_C_IsFinished ==true){
+      if (mode_C_IsFinished == true) {
         Online_Mode_B = INIT;
         mode_B_IsFinished = true;  //動作終了
       }
@@ -394,9 +400,9 @@ void back_to_goal() {
 
     case LINE_TRACE:
       buzzer.play("!L16 d");
-      move_linetrace(20000, false);
+      move_linetrace(20000, isRight);
 
-      if (identifyColor(190, 120, 120) || identifyColor(120, 120, 190)) {
+      if (identifyColor(190, 120, 120) || identifyColor(80, 140, 150)) {
         Online_Mode_B = REACHED_GOAL;
         end_reset_flag_D();
       }
@@ -462,35 +468,34 @@ void meandering_driving(unsigned long millis_time) {
   }
 }
 
-void goToCenter(){////////////////////////////////////////////////////////////////////////////////////////////////
-  switch(Online_Mode_B){
+void goToCenter() {  ////////////////////////////////////////////////////////////////////////////////////////////////
+  switch (Online_Mode_B) {
     case INIT:
       reset_Flag_B();
       Online_Mode_B = ROTATE;
-    
-    
+
+
     case ROTATE:
       move_rotate(0);
-      if(mode_C_IsFinished){
+      if (mode_C_IsFinished) {
         Online_Mode_B = FORWARD;
       }
       break;
 
 
     case FORWARD:
-    if(ROBOT_NUM == 0){
-    move_forward_high_speed(4000); //時間は要調整
-    }else{
-      move_forward_high_speed(2000); //時間は要調整
-  }
-      if(mode_C_IsFinished == true){
+      if (ROBOT_NUM == 1) {
+        
+      } else if(ROBOT_NUM == 2) {
+        move_forward_high_speed(2000);  //時間は要調整
+      }
+      if (mode_C_IsFinished == true) {
         stop_init();
         stop();
-       Online_Mode_B = INIT;
-       mode_B_IsFinished = true;
+        Online_Mode_B = INIT;
+        mode_B_IsFinished = true;
       }
       break;
-      
   }
 }
 
@@ -503,7 +508,7 @@ void pre_reset_flag_D() {
   mode_D_timePrev = timeNow_G;
   mode_D_IsFinished = false;
 }
-void end_reset_flag_D(){
+void end_reset_flag_D() {
   Online_Mode_D = INIT;
   mode_D_IsFinished = false;
 }

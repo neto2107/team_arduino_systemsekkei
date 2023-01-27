@@ -21,9 +21,23 @@ void move_forward(unsigned long millis_time) {
   if (Online_Mode_C != FORWARD) {
     pre_reset_Flag_C();
     Online_Mode_C = FORWARD;
-    move_front_init(false);
+    move_front_init(DEFAULT_SPEED);
   } else if (timeNow_G - mode_C_timePrev <= millis_time) {
-    speed_diff = move_front(false);
+    speed_diff = move_front(DEFAULT_SPEED);
+  } else {
+    mode_C_IsFinished = true;
+    Online_Mode_C = INIT;
+  }
+}
+
+//指定時間前進する
+void move_forward_low_speed(unsigned long millis_time) {
+  if (Online_Mode_C != FORWARD) {
+    pre_reset_Flag_C();
+    Online_Mode_C = FORWARD;
+    move_front_init(LOW_SPEED);
+  } else if (timeNow_G - mode_C_timePrev <= millis_time) {
+    speed_diff = move_front(LOW_SPEED);
   } else {
     mode_C_IsFinished = true;
     Online_Mode_C = INIT;
@@ -34,9 +48,9 @@ void move_forward_high_speed(unsigned long millis_time) {
   if (Online_Mode_C != FORWARD) {
     pre_reset_Flag_C();
     Online_Mode_C = FORWARD;
-    move_front_init(true);
+    move_front_init(HIGH_SPEED);
   } else if (timeNow_G - mode_C_timePrev <= millis_time) {
-    speed_diff = move_front(true);
+    speed_diff = move_front(HIGH_SPEED);
   } else {
     mode_C_IsFinished = true;
     Online_Mode_C = INIT;
@@ -79,7 +93,7 @@ void move_rotate(int direction) {
     Online_Mode_C = ROTATE;
     use_turnTo = true;
     speed0 = 0;
-  } else if (timeNow_G - mode_C_timePrev < 1000 && timeNow_G - mode_C_timePrev > 0) {
+  } else if (timeNow_G - mode_C_timePrev < 2000 && timeNow_G - mode_C_timePrev > 0) {
     speed_diff = turnTo(direction);
   } else {
     mode_C_IsFinished = true;
@@ -109,7 +123,8 @@ void move_rotate_with_millis(unsigned long millis_time, bool right_direction) {
 
 
 //一時停止しながら回転する
-void move_stop_and_rotate_with_millis(unsigned long millis_time, bool isRight, unsigned long rotate_time, unsigned long stop_time) {
+//発見したらtrue
+bool move_stop_and_rotate_with_millis(unsigned long millis_time, bool isRight, unsigned long rotate_time, unsigned long stop_time) {
   static unsigned long judge_time;
   switch (Online_Mode_C) {
     case ROTATE:
@@ -126,6 +141,7 @@ void move_stop_and_rotate_with_millis(unsigned long millis_time, bool isRight, u
 
     case STOP:
       stop_init();
+      dist_G = distance();  //停止したときに計測を行う。
       if (timeNow_G - mode_C_timePrev > judge_time) {
         Online_Mode_C = ROTATE;
         judge_time += rotate_time;
@@ -135,6 +151,7 @@ void move_stop_and_rotate_with_millis(unsigned long millis_time, bool isRight, u
       pre_reset_Flag_C();
       Online_Mode_C = ROTATE;
       judge_time = rotate_time;
+      stop_init();
       break;
   }
   if (timeNow_G - mode_C_timePrev > millis_time) {

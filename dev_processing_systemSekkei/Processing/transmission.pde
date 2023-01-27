@@ -1,19 +1,29 @@
 
 int sof_f = 0; //SOFを発見したかどうかのフラグ
-int l;//受信バッファ内のデータ数
+int l1;//受信バッファ内のデータ数
+int l2;
+int l3;
 void serialEvent(Serial p) {
-  l = p.available();//受信バッファないのデータ数を取得
+
   if (p == port_G) {
-    recvManager(p, robot1);
-  } else if (p == port2_G) {
-    recvManager(p, robot2);
-  } else if (p == port3_G) {
-    recvManager(p, robot3);
+    println("port1");
+    l1 = p.available();//受信バッファないのデータ数を取得
+    recvManager(port_G, robot1,l1);
+  }
+  if (p == port2_G) {
+     println("port2");
+    l2 = p.available();//受信バッファないのデータ数を取得
+    recvManager(port2_G, robot2,l2);
+  }
+
+  if (p == port3_G) {
+    l3 = p.available();//受信バッファないのデータ数を取得
+    recvManager(port3_G, robot3,l3);
   }
 }
 
 
-int recvManager(Serial p, Robot robo) {
+int recvManager(Serial p, Robot robo,int l) {
   while (l>0) {//受信バッファないにデータがある時
     if (sof_f == 0) { // SoF を発見していない場合
       int sof = p.read();
@@ -30,7 +40,7 @@ int recvManager(Serial p, Robot robo) {
         sof_f = 4;//超音波センサーの値受け取り
       }
       if (sof == 'N'){
-        port_G.write(0xff); //バイトデータを送信(1byte)
+        p.write(0xff); //バイトデータを送信(1byte)
         sof_f = 0;
         p.clear();
         l = 0;
@@ -38,49 +48,49 @@ int recvManager(Serial p, Robot robo) {
       l--;//受信バッファ数を修正
     }
 
-    //カラーセンサーの値受け取り
-    if (sof_f == 1) {//データの受信を検知したら
-      if (l >= 3) { //受信バッファに到着しているデータ数が2以上なら
-        //受信したデータを格納
-        color c = recvRGB(p);
-        robo.setColorSensorValue(c); //ロボットにカラーセンサーの値をセット
+    ////カラーセンサーの値受け取り
+    //if (sof_f == 1) {//データの受信を検知したら
+    //  if (l >= 3) { //受信バッファに到着しているデータ数が2以上なら
+    //    //受信したデータを格納
+    //    color c = recvRGB(p);
+    //    robo.setColorSensorValue(c); //ロボットにカラーセンサーの値をセット
 
-        l-=3; //受信した分を減らす
-        println("<-C"); //データ受信タイミング
-        port_G.write(0xff); //バイトデータを送信(1byte)
-        sof_f=0;
-      } else {
-        break;
-      }
-    }
-    //コンパスセンサーの値受け取り
-    if (sof_f == 2) {
-      if (l>=2) {
+    //    l-=3; //受信した分を減らす
+    //    println("<-C"); //データ受信タイミング
+    //    port_G.write(0xff); //バイトデータを送信(1byte)
+    //    sof_f=0;
+    //  } else {
+    //    break;
+    //  }
+    //}
+    ////コンパスセンサーの値受け取り
+    //if (sof_f == 2) {
+    //  if (l>=2) {
 
-        robo.set_degree(recvCompass(p)); //角度を取得する
+    //    robo.set_degree(recvCompass(p)); //角度を取得する
 
-        l-=2; //受信した分を減らす
-        println("<-G"); //データ受信タイミング
-        port_G.write(0xff); //バイトデータを送信(1byte)
-        sof_f=0;
-      } else {
-        break;
-      }
-    }
-    //超音波センサーの値受け取り
-    if (sof_f == 3) {
-      if (l>=2) {
+    //    l-=2; //受信した分を減らす
+    //    println("<-G"); //データ受信タイミング
+    //    port_G.write(0xff); //バイトデータを送信(1byte)
+    //    sof_f=0;
+    //  } else {
+    //    break;
+    //  }
+    //}
+    ////超音波センサーの値受け取り
+    //if (sof_f == 3) {
+    //  if (l>=2) {
 
-        robo.setUltrasonicSensingDistance(recvSonic(p) * 10);
+    //    robo.setUltrasonicSensingDistance(recvSonic(p) * 10);
 
-        l-=2; //受信した分を減らす
-        println("<-G"); //データ受信タイミング
-        port_G.write(0xff); //バイトデータを送信(1byte)
-        sof_f=0;
-      } else {
-        break;
-      }
-    }
+    //    l-=2; //受信した分を減らす
+    //    println("<-G"); //データ受信タイミング
+    //    port_G.write(0xff); //バイトデータを送信(1byte)
+    //    sof_f=0;
+    //  } else {
+    //    break;
+    //  }
+    //}
     //超音波センサーの値受け取り
     if (sof_f == 4) {
       if (l>=17) {
@@ -96,8 +106,8 @@ int recvManager(Serial p, Robot robo) {
 
         l-=16; //受信した分を減らす
         println("<-A"); //データ受信タイミング
-        println("x:" + robo.getRealPos().x + "y" + robo.getRealPos().y);
-        port_G.write(0xff); //バイトデータを送信(1byte)
+        //println("x:" + robo.getRealPos().x + "y" + robo.getRealPos().y);
+        p.write(0xff); //バイトデータを送信(1byte)
         sof_f=0;
       } else {
         break;

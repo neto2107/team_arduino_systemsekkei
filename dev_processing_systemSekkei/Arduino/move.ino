@@ -4,8 +4,8 @@ void mover() {
 
   modeChanger();
 
-  MotorL_G = speed0 + speed_diff + LEFT_SPEED_OFFSET;
-  MotorR_G = speed0 - speed_diff + RIGHT_SPEED_OFFSET;
+  MotorL_G = speed0 * LEFT_SPEED_OFFSET + speed_diff;
+  MotorR_G = speed0 * RIGHT_SPEED_OFFSET - speed_diff;
   motors_G.setSpeeds(MotorL_G, MotorR_G);
 }
 
@@ -36,29 +36,28 @@ float move_meandering_driving() {
   return spd;
 }
 
-float move_front_init(bool high_speed_flag) {
+float move_front_init(int speed_flag) {
   move_direction = heading_G2;
-  if (high_speed_flag) {
-    now_speed = speed100 * 2;  //要改善
-  } else {
-    now_speed = speed100;
+  switch(speed_flag){
+    case HIGH_SPEED:
+      now_speed = speed100 * 2;
+      speed0 = HIGH_SPEED;
+      break;
+    case LOW_SPEED:
+      now_speed = speed100 /2;
+      speed0 = LOW_SPEED;
+      break;
+    case DEFAULT_SPEED:
+      now_speed = speed100;
+      speed0 = DEFAULT_SPEED;
   }
 }
 
-float move_front(bool high_speed_flag) {  //使わない
-  if (high_speed_flag == true) {
-    speed0 = HIGH_SPEED;
-  } else {
-    speed0 = DEFAULT_SPEED;
-  }
+float move_front(int speed_flag) {  //使わない
   return 0;  //turnTo(move_direction);
 }
 
-//指定の角度に進み続けるときに使う
-float move_front_init(int direction) {
-  move_direction = direction;
-  now_speed = speed100;
-}
+
 
 float move_back_init() {
   move_direction = heading_G2;

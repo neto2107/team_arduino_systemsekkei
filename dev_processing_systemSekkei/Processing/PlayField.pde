@@ -1,6 +1,3 @@
-public Robot robot1;
-public Robot robot2;
-public Robot robot3;
 
 public class PlayField extends Field {
 
