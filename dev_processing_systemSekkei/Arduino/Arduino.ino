@@ -2,8 +2,8 @@
 #include <Wire.h>
 #include <ZumoMotors.h>
 #include <Pushbutton.h>
-#include <LSM303.h>
 #include <ZumoBuzzer.h>  // ブザーライブラリの読み込み
+#include <ZumoIMU.h>
 //黒　41,58,1
 //赤 157,79,30
 //青 41,75,66
@@ -19,7 +19,7 @@
 //Arduino.ino
 #define TRIG 2
 #define ECHO 4
-#define DEFAULT_SPEED 200
+#define DEFAULT_SPEED 100
 #define LOW_SPEED 150
 #define HIGH_SPEED 400
 #define ROTATE_SPEED 120
@@ -96,7 +96,7 @@ const int buzzerPin = 3;  // ブザーは 3 番ピン
 
 ZumoMotors motors_G;
 Pushbutton button(ZUMO_BUTTON);
-LSM303 compass;
+ZumoIMU imu;
 ZumoBuzzer buzzer;  // ZumoBuzzer クラスのインスタンスを生成
 
 unsigned long timeNow_G;
@@ -120,6 +120,9 @@ bool moving_flag=false;
 bool serachSonicSensor = false;
 
 float now_Pos[2] = { 0, 1600 / 2 };  //x,y
+
+ZumoIMU::vector<int16_t> m_max; // maximum magnetometer values, used for calibration
+ZumoIMU::vector<int16_t> m_min; // minimum magnetometer values, used for calibration
 
 //move.ino---------------------------------------------------------------------
 unsigned long moveTimePre = 0;
@@ -196,11 +199,12 @@ unsigned long speed_pos_prev_time = 0;
 
 //グローバル変数ここまで----------------------------------------------------------
 void setup() {
+
   Serial.begin(9600);
   Wire.begin();
 
   //コンパスのセットアップ
-  setupCompass();
+  setupIMU();
 
   heading_G = 120;
   r_G = 1;
@@ -211,15 +215,8 @@ void setup() {
   //超音波センサーのセットアップ
   setupSonic();
 
-  compass.m_min.x = 32767;
-  compass.m_min.y = 32767;
-  compass.m_min.z = 32767;
-  compass.m_max.x = -32768;
-  compass.m_max.y = -32768;
-  compass.m_max.z = -32768;
 
 #ifndef DEBUG_MODE
-  button.waitForButton();  // Zumo buttonが押されるまで待機
   calibrationCompass();
   buzzer.play("L16 cdegreg4");  // ブザーにて音楽を鳴らす
   //カラーセンサーのキャリブレーション
@@ -271,7 +268,7 @@ void loop() {
   //now_color_id = Nearest_Neighbor();
   getCompass();
   recvTusin();
-  //mover();
+  mover();
   //task();
   //printMe();
 

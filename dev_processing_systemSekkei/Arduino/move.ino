@@ -6,7 +6,8 @@ void mover() {
 
   MotorL_G = speed0 * LEFT_SPEED_OFFSET + speed_diff;
   MotorR_G = speed0 * RIGHT_SPEED_OFFSET - speed_diff;
-  motors_G.setSpeeds(MotorL_G, MotorR_G);
+  //本番は戻す
+  motors_G.setSpeeds(-MotorL_G, -MotorR_G);
 }
 
 

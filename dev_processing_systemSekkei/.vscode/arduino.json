@@ -1,6 +1,6 @@
 {
     "board": "arduino:avr:uno",
     "programmer": "arduino:avrispmkii",
-    "sketch": "sample\\01_sonic\\01_sonic.ino",
+    "sketch": "Arduino\\Arduino.ino",
     "port": "COM4"
 }
