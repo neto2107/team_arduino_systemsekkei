@@ -43,8 +43,8 @@ void setup() {
   robot3 = new Robot(new Vec2(300, 1500),-90);
   
   //Serialポートを指定 
-  port_G = new Serial(this,"COM10",9600);  
-  port2_G = new Serial(this,"COM12",9600);
+  port_G = new Serial(this,"COM4",9600);  
+  //port2_G = new Serial(this,"COM12",9600);
 
 
   //グリッドの生成

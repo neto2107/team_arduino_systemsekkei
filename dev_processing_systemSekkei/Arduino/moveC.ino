@@ -85,6 +85,29 @@ void move_back2(unsigned long millis_time) {
   }
 }
 
+void move_forward_turn(unsigned long millis_time,bool isRight){
+  switch(Online_Mode_C){
+    case INIT:
+      pre_reset_Flag_C();
+      Online_Mode_C = TURN1;
+      break;
+    
+    case TURN1:
+      forward_turn(isRight);
+      if(timeNow_G - mode_C_timePrev >millis_time){
+        Online_Mode_C = END;
+      }
+      break;
+    case END:
+      mode_C_IsFinished = true;
+      Online_Mode_C = END;
+      break;
+    default:
+      Online_Mode_C = INIT;
+      break;
+  }
+}
+
 
 //指定角度まで回転する
 void move_rotate(int direction) {

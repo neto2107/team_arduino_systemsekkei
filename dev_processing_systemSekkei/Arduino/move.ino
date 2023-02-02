@@ -33,7 +33,7 @@ float move_meandering_driving() {
   unsigned long timediff =timeNow_G - move_meandering_driving_time_prev;
   if(timediff > 6283/2) move_meandering_driving_time_prev = timeNow_G;
 
-  float spd = speed0 * 0.3* sin((timediff/ 500.0)); //スピードの差分
+  float spd = speed0 * 0.5* sin((timediff/ 500.0)); //スピードの差分
   return spd;
 }
 
@@ -82,6 +82,17 @@ float stop() {
   now_speed = 0;
   speed0 = 0;
   return 0;
+}
+
+void forward_turn(bool isRight){
+  move_direction = heading_G2;
+  now_speed = speed100;
+  speed0 = 100;
+  if(isRight){
+    speed_diff = -70;
+  }else{
+    speed_diff = 70;
+  }
 }
 
 float speed_reset() {

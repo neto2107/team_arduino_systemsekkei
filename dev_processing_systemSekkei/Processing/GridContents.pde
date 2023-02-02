@@ -118,7 +118,11 @@ public class GridContents extends Grid {
 
     //色判定部分の描画
     int judge = robot.getColorSenserJudged();
-    fill(0, 0, 0);
+    if((red(sensored_color) + green(sensored_color) + blue(sensored_color))/3 > 127){
+      fill(0, 0, 0);
+    }else{
+      fill(255,255,255);
+    }
     textSize(50);
     switch(judge) {
     case 0://判定値が黒なら
@@ -133,7 +137,10 @@ public class GridContents extends Grid {
     case 3:
       text("Blue", -55, -5, 150, 100);
       break;
+    case 4:
+      text("Other", -55, -5, 150, 100);
     }
+    fill(0,0,0);
     String color_txt = Float.toString(red(sensored_color)) + ","+Float.toString(green(sensored_color))+","+Float.toString(blue(sensored_color));
         textSize(25);
     text(color_txt,-100, 140,200,80);

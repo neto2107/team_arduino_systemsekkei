@@ -22,7 +22,7 @@
 #define DEFAULT_SPEED 100
 #define LOW_SPEED 150
 #define HIGH_SPEED 400
-#define ROTATE_SPEED 120
+#define ROTATE_SPEED 100
 #define ROBOT_NUM 1 //0 自ゴールから見て正面 , 1:自ゴールから見て右 2:自ゴールから見て左
 #define LEFT_SPEED_OFFSET 1
 #define RIGHT_SPEED_OFFSET 1
@@ -65,9 +65,7 @@
 #define REACHED_GOAL2 32
 #define SEARCH2 33
 #define SEARCH3 34
-#define REACHED_GOAL3 35
-#define REACHED_GOAL4 36
-#define BACK_TO_GOAL3 37
+
 
 #define DISCOVERY 35
 #define NOT_DISCOVERY 36
@@ -77,11 +75,20 @@
 #define FIRST_MOVING 40
 #define FIRST_MOVING2 41
 #define SEARCH4 42
+#define REACHED_GOAL3 43
+#define REACHED_GOAL4 44
+#define BACK_TO_GOAL3 45
+#define TURN1 46
+#define END 47
+#define BACK_TO_GOAL4 48
+#define TURN_CUP 49
+#define TURN_CUP2 50
 #define DETACT_FAILD 100  //カップの計測が失敗した
 #define DETACT_TRUE 101   //カップの計測が成功した
 #define CATCH_SUCCESS 102
 #define CATCH_FAIED 103
 #define BACK_TO_GOAL2 104
+
 
 //MODE A
 
@@ -165,14 +172,21 @@ unsigned int r_min, g_min, b_min;  // このグローバル変数はこのファ
 unsigned int r_max, g_max, b_max;
 
 //NN関数のために新たに追加する項目
-#define max_colors 4
+#define max_colors 5
+//changed
+// unsigned int ave_colors[max_colors][3] = {
+//   { 255, 255, 255 },  //白色
+//   { 4, 6, 11 },       //黒色
+//   { 178, 0, 0 },      //赤
+//   { 0, 16, 121 }      //青
+// };
 unsigned int ave_colors[max_colors][3] = {
   { 255, 255, 255 },  //白色
-  { 4, 6, 11 },       //黒色
-  { 178, 0, 0 },      //赤
-  { 0, 16, 121 }      //青
+  { 37, 44, 2 },       //黒色
+  { 179, 77, 35 },      //赤
+  { 38, 55, 62 } ,     //青
+  { 160,160,160} //OTHER
 };
-
 //collision.ino
 float collision_bf_angle;  //前回の角度
 float collision_rc;
@@ -265,7 +279,8 @@ void loop() {
   calPos();
   //カラーセンサーの値を取得
   getRGB(r_G, g_G, b_G);
-  //now_color_id = Nearest_Neighbor();
+  now_color_id = Nearest_Neighbor();
+  dist_G = distance();
   getCompass();
   recvTusin();
   mover();

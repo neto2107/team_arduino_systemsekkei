@@ -104,8 +104,8 @@ void getCompass() {
   ay = imu.a.y;  //map(compass.a.y,-32768,32767,-1024,1023);
   az = imu.a.z;  //map(compass.a.z,-32768,32767,-1024,1023);
 
-  heading_G = averageHeading();
-  heading_G2 = relativeHeading(heading_G,start_heading_G);
+  heading_G = averageHeadingLP();
+  heading_G2 =relativeHeading(heading_G,start_heading_G);
   setRealAccel();
 
 
@@ -162,8 +162,8 @@ float averageHeading()
 float averageHeadingLP() {
   ZumoIMU::vector<int32_t> avg = {0, 0, 0};
   imu.readMag();
-  avg.x = 0.2 * imu.m.x + 0.8 * avg.x;
-  avg.y = 0.2 * imu.m.y + 0.8 * avg.y;
+  avg.x = 0.8 * imu.m.x + 0.2 * avg.x;
+  avg.y = 0.8 * imu.m.y + 0.2 * avg.y;
 
 
   // avg is the average measure of the magnetic vector.

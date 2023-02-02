@@ -47,14 +47,14 @@ void modeChanger() {
       //buzzer.play("!L16 fg");
       //ラインを感知したら
       now_color_id = Nearest_Neighbor();
-      if (now_color_id != WHITE) {          //ラインを感知したら
-        set_back_with_return_fild(SEARCH);  //中断してライン内に戻す
+      if (!(now_color_id == WHITE || now_color_id == OTHER)) {  //ラインを感知したら
+        set_back_with_return_fild(SEARCH);                      //中断してライン内に戻す
         reset_Flag_B();
       }
       //Modebが終了したら
       if (mode_B_IsFinished == true) {
         if (resultId_B == DISCOVERY) {
-          Online_Mode_A = SEARCH2;
+          Online_Mode_A = TURN_CUP;
 
         } else if (resultId_B == NOT_DISCOVERY) {
           Online_Mode_A = SEARCH;
@@ -65,18 +65,24 @@ void modeChanger() {
 
       // case MEANDERING_DRIVING: //蛇行運転をしながら探す
 
-      //   meandering_driving(mode_A_time_set); //要ライン外に出たときのプログラム
+      //   meandering_driving(10000); //要ライン外に出たときのプログラム
       //   if (mode_B_IsFinished == true) {
       //     mode_A_time_set = 0; //リセット
       //     if (resultId_B == DISCOVERY) {
       //       Online_Mode_A = SEARCH2;
 
       //     } else if (resultId_B == NOT_DISCOVERY) {
-      //       Online_Mode_A = MEANDERING_DRIVING;
+      //       Online_Mode_A = SEARCH;
       //       mode_A_time_set = 10000;
       //     }
       //   }
       //   break;
+    case TURN_CUP:
+      move_turn_cup_center();
+      if(mode_B_IsFinished){
+        Online_Mode_A = SEARCH2;
+      }
+      break;
 
     case SEARCH2:
       buzzer.play("!L16 d");
@@ -107,7 +113,7 @@ void modeChanger() {
         }
       }
       now_color_id = Nearest_Neighbor();
-      if (now_color_id != WHITE) {  //ラインを感知したら
+      if (!(now_color_id == WHITE || now_color_id == OTHER)) {  //ラインを感知したら
         set_back_with_return_fild(SEARCH);
       }
       break;
@@ -116,7 +122,7 @@ void modeChanger() {
       //buzzer.play("!L16 f");
       back_to_goal();
       if (mode_B_IsFinished == true) {
-        Online_Mode_A = SEARCH;
+        Online_Mode_A =SEARCH;
       }
       break;
 
@@ -138,9 +144,9 @@ void modeChanger() {
 
     case FIRST_MOVING2:             //中心に向く
       if (ROBOT_NUM == 1) {         //自ゴールから見て右
-        move_rotate(270);           //左を向く
+        move_rotate(0);             //左を向く
       } else if (ROBOT_NUM == 2) {  //自ゴールから見て左
-        move_rotate(90);            //右をむく
+        move_rotate(0);             //右をむく
       }
       if (mode_C_IsFinished == true) {
         Online_Mode_A = SEARCH;
@@ -239,6 +245,39 @@ void move_ditecting(unsigned long millis_time) {
   }
 }
 
+void move_turn_cup_center(){
+  static unsigned long start_time = 0;
+  static unsigned long end_time = 0;
+  switch(Online_Mode_B){
+    case INIT:
+      reset_Flag_B();
+      Online_Mode_B = TURN_CUP;
+      start_time = millis();
+      reset_Flag_C();
+      break;
+    
+    case TURN_CUP:
+      move_rotate_with_millis(10000,true);
+      if( > SONIC_THRESHOLD){
+        stop_init();
+        reset_Flag_C();
+        end_time = millis();
+        Online_Mode_B = TURN_CUP2;
+      }
+      break;
+    
+    case TURN_CUP2:
+      move_rotate_with_millis(end_time - start_time,false);
+      if(mode_C_IsFinished == true){
+        mode_B_IsFinished = true;
+      }
+      break;
+      
+    default:
+      Online_Mode_B =INIT;
+  }
+}
+
 //超音波センサー感知時の動作//本当にあっているかどうかを確認する
 //返り値 動作時の偏差
 /*
@@ -285,6 +324,7 @@ void move_detected() {
           mode_B_IsFinished = true;
         }
       }
+      break;
   }
   return diff;
 }
@@ -303,13 +343,11 @@ void move_catch() {
         move_forward(2000);
 
         if (dist_G <= 4) {  //キャッチしたと判断したときは
-          move_forward_low_speed(200); //少し前進して
-          if (mode_C_IsFinished) {
-            stop_init();  //停止する
-            resultId_B = CATCH_SUCCESS;
-            Online_Mode_B = INIT;      //キャッチが成功
-            mode_B_IsFinished = true;  //遷移モードにする
-          }
+
+          stop_init();  //停止する
+          resultId_B = CATCH_SUCCESS;
+          Online_Mode_B = INIT;      //キャッチが成功
+          mode_B_IsFinished = true;  //遷移モードにする
         }
       } else {
         //途中で見失ってしまったときは
@@ -333,28 +371,56 @@ void back_to_goal() {
       Online_Mode_B = BACK_TO_GOAL;
       break;
     case BACK_TO_GOAL:
-      move_rotate(180);
-      if (mode_C_IsFinished == true) {  //指定角度に向いたら
+      move_forward_turn(10000, true);
+      if (heading_G2 > 100 && heading_G2 < 260) {  //指定角度に向いたら
         Online_Mode_B = BACK_TO_GOAL2;
       }
+      now_color_id = Nearest_Neighbor();
+      if (!(now_color_id == WHITE || now_color_id == OTHER)) {
+        Online_Mode_B = BACK_TO_GOAL3;
+      }
       break;
+
 
     case BACK_TO_GOAL2:
       move_forward(10000L);
       //Serial.println("back_to_goal2");
       now_color_id = Nearest_Neighbor();
-      if (now_color_id != WHITE) {
-        stop_init();
+      if (!(now_color_id == WHITE || now_color_id == OTHER)) {
         reset_Flag_C();
-        Online_Mode_B = BACK_TO_GOAL3;
-        delay(100);
+        Online_Mode_B = LINE_TRACE;
       }
       break;
+
+    case BACK_TO_GOAL4:
+
+      move_forward(500);
+      if (mode_C_IsFinished) {
+        stop_init();
+        int color_id[5];
+        for (int i = 0; i < 5; i++) {
+          color_id[i] = Nearest_Neighbor();
+        }
+        int black_num = 0;
+        for (int j = 0; j < 5; j++) {
+          if (color_id[j] == BLACK) black_num++;
+        }
+        if (black_num > 3) {
+          if (heading_G2 >= 0 && heading_G2 < 180) isRight = true;
+          else if (heading_G2 >= 180, heading_G2 < 360) isRight = false;
+          Online_Mode_B = LINE_TRACE;
+        } else {
+          Online_Mode_B = REACHED_GOAL3;
+        }
+      }
+
+      break;
+
 
     case BACK_TO_GOAL3:
       now_color_id = Nearest_Neighbor();
       if (now_color_id == RED || now_color_id == BLUE) {
-        Online_Mode_B = REACHED_GOAL3;
+        Online_Mode_B = LINE_TRACE;
 
       } else if (now_color_id == BLACK) {
         if (heading_G2 >= 0 && heading_G2 < 180) isRight = true;
@@ -366,7 +432,7 @@ void back_to_goal() {
 
     case REACHED_GOAL:  //ゴールに到達したら
       //2秒間ライントレース
-      move_linetrace(1500, isRight);
+      move_linetrace(1000, isRight);
       if (mode_D_IsFinished == true) {
         Online_Mode_B = REACHED_GOAL2;
         end_reset_flag_D();
@@ -425,14 +491,13 @@ void meandering_driving(unsigned long millis_time) {
       reset_Flag_B();
       Online_Mode_B = MEANDERING_DRIVING;
       move_meandering_driving_init();
-      Serial.println("INIT");
       break;
 
     case MEANDERING_DRIVING:
       speed_diff = move_meandering_driving();
       dist_G = distance();
       now_color_id = Nearest_Neighbor();
-      if (now_color_id != WHITE) {
+      if (!(now_color_id == WHITE || now_color_id == OTHER)) {
         stop_init();
         stop();
         Online_Mode_B = BACK;
@@ -485,8 +550,8 @@ void goToCenter() {  ///////////////////////////////////////////////////////////
 
     case FORWARD:
       if (ROBOT_NUM == 1) {
-        
-      } else if(ROBOT_NUM == 2) {
+
+      } else if (ROBOT_NUM == 2) {
         move_forward_high_speed(2000);  //時間は要調整
       }
       if (mode_C_IsFinished == true) {
