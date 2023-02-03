@@ -139,6 +139,7 @@ void move_rotate_with_millis(unsigned long millis_time, bool right_direction) {
       speed_diff = -ROTATE_SPEED;
     }
   } else {
+    stop_init();
     mode_C_IsFinished = true;
     Online_Mode_C = INIT;
   }

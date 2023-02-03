@@ -131,11 +131,12 @@ float relativeHeading(float heading_from, float heading_to)
 {
   float relative_heading = heading_to - heading_from;
 
-  // constrain to -180 to 180 degree range
-  if (relative_heading > 180)
-    relative_heading -= 360;
-  if (relative_heading < -180)
+  // constrain to 0-360 degree range
+  if (relative_heading < 0)
     relative_heading += 360;
+  if(relative_heading > 360){
+    relative_heading -= 360;
+  }
 
   return relative_heading;
 }

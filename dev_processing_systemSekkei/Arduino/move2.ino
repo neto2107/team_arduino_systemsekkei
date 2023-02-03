@@ -32,13 +32,7 @@ void modeChanger() {
 
     case INIT:
       modeReseter();
-      if (ROBOT_NUM == 0) {
-        Online_Mode_A = FIRST_MOVING;
-        mode_A_time_set = 10000;
-
-      } else {
-        Online_Mode_A = FIRST_MOVING;
-      }
+      Online_Mode_A = FIRST_MOVING;
       break;
 
     case SEARCH:
@@ -79,8 +73,10 @@ void modeChanger() {
       //   break;
     case TURN_CUP:
       move_turn_cup_center();
-      if(mode_B_IsFinished){
+      if (mode_B_IsFinished) {
         Online_Mode_A = SEARCH2;
+        reset_Flag_B();
+        reset_Flag_C();
       }
       break;
 
@@ -122,7 +118,7 @@ void modeChanger() {
       //buzzer.play("!L16 f");
       back_to_goal();
       if (mode_B_IsFinished == true) {
-        Online_Mode_A =SEARCH;
+        Online_Mode_A = AFTER_MOVING;
       }
       break;
 
@@ -138,22 +134,30 @@ void modeChanger() {
     case FIRST_MOVING:  //コート中央に行く //両サイド
       goToCenter();
       if (mode_B_IsFinished) {
-        Online_Mode_A = FIRST_MOVING2;
+        if (resultId_B == DISCOVERY) {
+          Online_Mode_A = SEARCH2;
+        } else {
+          Online_Mode_A = SEARCH;
+        }
       }
       break;
 
-    case FIRST_MOVING2:             //中心に向く
-      if (ROBOT_NUM == 1) {         //自ゴールから見て右
-        move_rotate(0);             //左を向く
-      } else if (ROBOT_NUM == 2) {  //自ゴールから見て左
-        move_rotate(0);             //右をむく
-      }
+    case FIRST_MOVING2:  //中心に向く
+      Online_Mode_A = SEARCH;
       if (mode_C_IsFinished == true) {
         Online_Mode_A = SEARCH;
       }
       break;
 
-
+    case AFTER_MOVING:
+      if (ROBOT_NUM == 0) after_moving();
+      else after_moving2();
+      if(mode_B_IsFinished){
+        modeReseter();
+        Online_Mode_A = SEARCH;
+        
+      }
+      break;
     default:
       buzzer.play("!L16 g");
       Online_Mode_A = INIT;
@@ -245,36 +249,43 @@ void move_ditecting(unsigned long millis_time) {
   }
 }
 
-void move_turn_cup_center(){
+void move_turn_cup_center() {
   static unsigned long start_time = 0;
   static unsigned long end_time = 0;
-  switch(Online_Mode_B){
+  static unsigned long diff = 0;
+  switch (Online_Mode_B) {
     case INIT:
       reset_Flag_B();
       Online_Mode_B = TURN_CUP;
       start_time = millis();
       reset_Flag_C();
       break;
-    
+
     case TURN_CUP:
-      move_rotate_with_millis(10000,true);
-      if( > SONIC_THRESHOLD){
+      move_rotate_with_millis(10000, true);
+      diff = timeNow_G - start_time;
+      if ((dist_G > SONIC_THRESHOLD || dist_G == 0) && diff > 200) {
         stop_init();
         reset_Flag_C();
         end_time = millis();
         Online_Mode_B = TURN_CUP2;
       }
       break;
-    
+
     case TURN_CUP2:
-      move_rotate_with_millis(end_time - start_time,false);
-      if(mode_C_IsFinished == true){
+
+      diff = ((end_time - start_time) / 2);
+      if (diff < 0) diff = 0;
+      move_rotate_with_millis(diff, false);
+      if (mode_C_IsFinished == true) {
+        stop_init();
         mode_B_IsFinished = true;
+        diff = 0;
       }
       break;
-      
+
     default:
-      Online_Mode_B =INIT;
+      Online_Mode_B = INIT;
   }
 }
 
@@ -305,9 +316,8 @@ void move_detected() {
       //}
       break;
     case KEISOKU:
-      if (timeNow_G - mode_B_timePrev <= 1000) {  //1秒間計測
+      if (timeNow_G - mode_B_timePrev <= 500) {  //1秒間計測
         stop_init();
-        dist_G = distance();
         if (dist_G < pre_dist - 5 && dist_G > pre_dist + 5) {  //distが+-3の範囲に収まっていないなら
           move2_keisoku_flag = true;                           //フラグを1にする
         }
@@ -325,6 +335,8 @@ void move_detected() {
         }
       }
       break;
+    default:
+      Online_Mode_B = INIT;
   }
   return diff;
 }
@@ -363,10 +375,11 @@ void move_catch() {
 
 //ゴールに帰ってくるときの動作
 void back_to_goal() {
+  static bool canSonic = true;
   static bool isRight;  //回転方向のフラグ
   switch (Online_Mode_B) {
     case INIT:
-
+      canSonic = true;
       reset_Flag_B();
       Online_Mode_B = BACK_TO_GOAL;
       break;
@@ -431,6 +444,7 @@ void back_to_goal() {
       break;
 
     case REACHED_GOAL:  //ゴールに到達したら
+      canSonic = false;
       //2秒間ライントレース
       move_linetrace(1000, isRight);
       if (mode_D_IsFinished == true) {
@@ -461,6 +475,7 @@ void back_to_goal() {
       if (mode_C_IsFinished == true) {
         Online_Mode_B = INIT;
         mode_B_IsFinished = true;  //動作終了
+        canSonic = true;
       }
       break;
 
@@ -477,8 +492,7 @@ void back_to_goal() {
     default:
       break;
   }
-  dist_G = distance();
-  if (dist_G == 0 || dist_G > SONIC_THRESHOLD) {
+  if ((dist_G == 0 || dist_G > SONIC_THRESHOLD)&&canSonic) {
     mode_B_IsFinished = true;
     Online_Mode_B = INIT;
   }
@@ -537,29 +551,144 @@ void goToCenter() {  ///////////////////////////////////////////////////////////
   switch (Online_Mode_B) {
     case INIT:
       reset_Flag_B();
-      Online_Mode_B = ROTATE;
-
-
-    case ROTATE:
-      move_rotate(0);
-      if (mode_C_IsFinished) {
+      if (ROBOT_NUM == 1 || ROBOT_NUM == 2) {
+        Online_Mode_B = LINE_TRACE;
+      } else if (ROBOT_NUM == 0) {
         Online_Mode_B = FORWARD;
       }
+
       break;
-
-
-    case FORWARD:
+    //ロボット2,3用
+    case LINE_TRACE:
       if (ROBOT_NUM == 1) {
-
+        move_linetrace(FIRST_LINE_TIME, false, HIGH);
       } else if (ROBOT_NUM == 2) {
-        move_forward_high_speed(2000);  //時間は要調整
+        move_linetrace(FIRST_LINE_TIME, true, HIGH);
       }
-      if (mode_C_IsFinished == true) {
+      if (mode_D_IsFinished) {
         stop_init();
         stop();
         Online_Mode_B = INIT;
         mode_B_IsFinished = true;
       }
+      break;
+
+    case ROTATE:
+      if (ROBOT_NUM == 1) {
+        move_rotate(90);
+      } else if (ROBOT_NUM == 2) {
+        move_rotate(270);
+      }
+
+      if (mode_C_IsFinished) {
+        stop_init();
+        stop();
+        Online_Mode_B = INIT;
+        mode_B_IsFinished = true;
+      }
+      break;
+
+    //ロボット1用
+    case FORWARD:
+      move_forward_high_speed(2000);
+      if (dist_G < (SONIC_THRESHOLD / 3) && dist_G > 0) {
+        stop_init();
+        stop();
+        Online_Mode_B = INIT;
+        mode_B_IsFinished = true;
+        resultId_B = DISCOVERY;
+      }
+      if (mode_C_IsFinished) {
+        stop_init();
+        stop();
+        Online_Mode_B = INIT;
+        mode_B_IsFinished = true;
+        resultId_B = NOT_DISCOVERY;
+      }
+      break;
+
+
+    default:
+      Online_Mode_B = INIT;
+  }
+}
+
+
+void after_moving() {
+  switch (Online_Mode_B) {
+    case INIT:
+      reset_Flag_B();
+      Online_Mode_B = ROTATE;
+      break;
+    case ROTATE:
+      move_rotate_with_millis(HARF_ROTATE_TIME,true);
+      if(mode_C_IsFinished){
+        Online_Mode_B = FORWARD;
+      }
+      break;
+    case FORWARD:
+      move_forward(FIRST_FORWARD_TIME);
+      if(mode_C_IsFinished){
+        mode_B_IsFinished = true;
+        Online_Mode_B = INIT;
+      }
+      if(!(now_color_id == WHITE || now_color_id == OTHER)){
+        Online_Mode_B = BACK;
+      }
+      break;
+    case BACK:
+      move_back_to_rotate();
+      if(mode_D_IsFinished){
+        mode_B_IsFinished = true;
+        Online_Mode_B = INIT;
+      }
+      break;
+    default:
+      Online_Mode_B = INIT;
+      break;
+  }
+}
+//カップ取得後の動作 //ロボット2,3用
+void after_moving2() {
+  switch (Online_Mode_B) {
+    case INIT:
+      reset_Flag_B();
+      Online_Mode_B = FORWARD;
+      break;
+    case FORWARD:
+      move_forward(10000);
+      if (!(now_color_id == WHITE || now_color_id == OTHER)) {
+        stop_init();
+        Online_Mode_B = LINE_TRACE;
+      }
+      break;
+    case LINE_TRACE:
+      if (ROBOT_NUM == 1)
+        move_linetrace(AFTER_LINE_TIME, false, HIGH);
+      else if (ROBOT_NUM == 2)
+        move_linetrace(AFTER_LINE_TIME2, true, HIGH);
+      if (mode_D_IsFinished) {
+        stop_init();
+        Online_Mode_B = ROTATE;
+      }
+      break;
+    case ROTATE:
+      if (ROBOT_NUM == 1) move_rotate_with_millis(QURT_ROTATE_TIME, false);
+      if (ROBOT_NUM == 2) move_rotate_with_millis(QURT_ROTATE_TIME, true);
+      if (mode_C_IsFinished) {
+        Online_Mode_B = FORWARD2;
+        stop_init();
+      }
+      break;
+    case FORWARD2:
+      move_forward(2000);
+      if (mode_C_IsFinished) {
+        mode_B_IsFinished = true;
+        Online_Mode_B = INIT;
+      }
+      break;
+    default:
+      Online_Mode_B = INIT;
       break;
   }
 }
@@ -595,7 +724,7 @@ void move_back_to_rotate() {
       break;
 
     case ROTATE:
-      move_rotate_with_millis(500, true);
+      move_rotate_with_millis(HARF_ROTATE_TIME, true);
       if (mode_C_IsFinished) {
         Online_Mode_D = INIT;
         mode_D_IsFinished = true;
@@ -624,6 +753,37 @@ void move_linetrace(unsigned long millis_time, bool right_rotate) {
       if (now_color_id == WHITE) {
         speed_diff = stop_init();
         linetrace_init();
+        Online_Mode_D = LINE_TRACE;
+      }
+      break;
+    case LINE_TRACE:
+      speed_diff = linetrace_P(right_rotate);
+      if (timeNow_G - mode_D_timePrev > millis_time) {
+        mode_D_IsFinished = true;
+        Online_Mode_D = INIT;
+        reset_Flag_C();
+        //speed_diff = stop_init();
+      }
+      break;
+  }
+}
+
+void move_linetrace(unsigned long millis_time, bool right_rotate, int speed) {
+
+  switch (Online_Mode_D) {
+    case INIT:
+      pre_reset_Flag_C();
+      pre_reset_flag_D();
+
+      Online_Mode_D = ROTATE;
+      speed_diff = stop_init();
+      break;
+    case ROTATE:
+      move_rotate_with_millis(10000, right_rotate);
+      now_color_id = Nearest_Neighbor();
+      if (now_color_id == WHITE) {
+        speed_diff = stop_init();
+        linetrace_init(speed);
         Online_Mode_D = LINE_TRACE;
       }
       break;

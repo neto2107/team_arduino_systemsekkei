@@ -19,13 +19,22 @@
 //Arduino.ino
 #define TRIG 2
 #define ECHO 4
+
+//要調整
+#define ROBOT_NUM 1 //0 自ゴールから見て正面 , 1:自ゴールから見て右 2:自ゴールから見て左
 #define DEFAULT_SPEED 100
 #define LOW_SPEED 150
-#define HIGH_SPEED 400
+#define HIGH_SPEED 250
 #define ROTATE_SPEED 100
-#define ROBOT_NUM 1 //0 自ゴールから見て正面 , 1:自ゴールから見て右 2:自ゴールから見て左
 #define LEFT_SPEED_OFFSET 1
 #define RIGHT_SPEED_OFFSET 1
+#define FIRST_LINE_TIME 2000
+#define FIRST_FORWARD_TIME 3000
+#define AFTER_LINE_TIME 2000 //ロボット2
+#define AFTER_LINE_TIME2 3000 //ロボット3
+#define QURT_ROTATE_TIME 500
+#define HARF_ROTATE_TIME 1000
+
 
 
 #define FIELD_SIZE_W 2500
@@ -33,7 +42,7 @@
 
 #define DEG_TO_RAD(degree) degree*(M_PI / 180)
 
-#define SONIC_THRESHOLD 200  //超音波センサーの閾値
+#define SONIC_THRESHOLD 40  //超音波センサーの閾値cm changed
 
 //色の定義
 #define WHITE 0  //白
@@ -83,6 +92,7 @@
 #define BACK_TO_GOAL4 48
 #define TURN_CUP 49
 #define TURN_CUP2 50
+#define AFTER_MOVING 51
 #define DETACT_FAILD 100  //カップの計測が失敗した
 #define DETACT_TRUE 101   //カップの計測が成功した
 #define CATCH_SUCCESS 102

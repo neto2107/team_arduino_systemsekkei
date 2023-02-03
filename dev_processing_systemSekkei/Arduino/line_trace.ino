@@ -3,6 +3,22 @@ void linetrace_init() {
   now_speed = speed100;
   speed0 = DEFAULT_SPEED;
 }
+
+void linetrace_init(int speed){
+  now_speed = speed100;
+  speed0 = DEFAULT_SPEED;
+  switch (speed) {
+    case HIGH:
+      now_speed = speed100;
+      speed0 = HIGH_SPEED;
+      break;
+    case LOW:
+      now_speed = speed100;
+      speed0 = LOW_SPEED;
+      break;
+      
+  }
+}
 //引数
 //回転方向0→反時計回り
 //回転方向1→時計回り
