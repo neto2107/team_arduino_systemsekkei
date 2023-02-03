@@ -136,6 +136,8 @@ bool moving_flag=false;
 
 bool serachSonicSensor = false;
 
+bool isRotateRight = true; //どちらの方向に回転するか
+
 float now_Pos[2] = { 0, 1600 / 2 };  //x,y
 
 ZumoIMU::vector<int16_t> m_max; // maximum magnetometer values, used for calibration

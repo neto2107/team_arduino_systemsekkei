@@ -47,10 +47,10 @@ float setStartDirection(){
   getCompass();
   switch (ROBOT_NUM) {
   case 1:
-    start_heading_G = heading_G + 90; //自ゴールから見て右に置く
+    start_heading_G = heading_G - 90; //自ゴールから見て右に置く
   break;
   case 2:
-      start_heading_G = heading_G - 90;//自ゴールから見て左に置く
+      start_heading_G = heading_G + 90;//自ゴールから見て左に置く
   break;
   default:
     start_heading_G = heading_G;

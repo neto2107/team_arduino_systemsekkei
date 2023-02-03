@@ -134,6 +134,8 @@ void modeChanger() {
     case FIRST_MOVING:  //コート中央に行く //両サイド
       goToCenter();
       if (mode_B_IsFinished) {
+        reset_Flag_B();
+        reset_Flag_C();
         if (resultId_B == DISCOVERY) {
           Online_Mode_A = SEARCH2;
         } else {
@@ -152,10 +154,9 @@ void modeChanger() {
     case AFTER_MOVING:
       if (ROBOT_NUM == 0) after_moving();
       else after_moving2();
-      if(mode_B_IsFinished){
+      if (mode_B_IsFinished) {
         modeReseter();
         Online_Mode_A = SEARCH;
-        
       }
       break;
     default:
@@ -196,6 +197,7 @@ void move_ditecting(unsigned long millis_time) {
     case INIT:
       reset_Flag_B();
       Online_Mode_B = SEARCH;
+
       break;
     case SEARCH:  //直進、回転を繰り返す。
       //serachSonicSensor = false;
@@ -203,13 +205,19 @@ void move_ditecting(unsigned long millis_time) {
       if (mode_C_IsFinished == true) {
         Online_Mode_B = SEARCH2;
         direction_time = random(2000, 3500);
+        int dice = random(0, 2);
+        if (dice == 0) {
+          isRotateRight = true;
+        } else {
+          isRotateRight = false;
+        }
       }
       break;
 
     case SEARCH2:
 
       //move_rotate_with_millis(direction_time, true);
-      move_stop_and_rotate_with_millis(direction_time, true, 150, 150);
+      move_stop_and_rotate_with_millis(direction_time, isRotateRight, 150, 150);
       if (mode_C_IsFinished == true) {
         Online_Mode_B = SEARCH;
       }
@@ -262,7 +270,7 @@ void move_turn_cup_center() {
       break;
 
     case TURN_CUP:
-      move_rotate_with_millis(10000, true);
+      move_rotate_with_millis(10000, isRotateRight);
       diff = timeNow_G - start_time;
       if ((dist_G > SONIC_THRESHOLD || dist_G == 0) && diff > 200) {
         stop_init();
@@ -276,7 +284,7 @@ void move_turn_cup_center() {
 
       diff = ((end_time - start_time) / 2);
       if (diff < 0) diff = 0;
-      move_rotate_with_millis(diff, false);
+      move_rotate_with_millis(diff, !isRotateRight);
       if (mode_C_IsFinished == true) {
         stop_init();
         mode_B_IsFinished = true;
@@ -384,7 +392,7 @@ void back_to_goal() {
       Online_Mode_B = BACK_TO_GOAL;
       break;
     case BACK_TO_GOAL:
-      move_forward_turn(10000, true);
+      move_forward_turn(3000, true);
       if (heading_G2 > 100 && heading_G2 < 260) {  //指定角度に向いたら
         Online_Mode_B = BACK_TO_GOAL2;
       }
@@ -490,9 +498,10 @@ void back_to_goal() {
       break;
 
     default:
+      Online_Mode_B = INIT;
       break;
   }
-  if ((dist_G == 0 || dist_G > SONIC_THRESHOLD)&&canSonic) {
+  if ((dist_G == 0 || dist_G > SONIC_THRESHOLD) && canSonic) {
     mode_B_IsFinished = true;
     Online_Mode_B = INIT;
   }
@@ -567,24 +576,29 @@ void goToCenter() {  ///////////////////////////////////////////////////////////
       }
       if (mode_D_IsFinished) {
         stop_init();
-        stop();
-        Online_Mode_B = INIT;
-        mode_B_IsFinished = true;
+        Online_Mode_B = ROTATE;
+
       }
       break;
 
     case ROTATE:
       if (ROBOT_NUM == 1) {
-        move_rotate(90);
+        move_rotate_with_millis(QURT_ROTATE_TIME, false);
       } else if (ROBOT_NUM == 2) {
-        move_rotate(270);
+        move_rotate_with_millis(QURT_ROTATE_TIME, true);
       }
 
       if (mode_C_IsFinished) {
         stop_init();
-        stop();
-        Online_Mode_B = INIT;
+        Online_Mode_B = FORWARD2;
+      }
+      break;
+    case FORWARD2:
+      move_forward(2000);
+      if (mode_C_IsFinished) {
+        stop_init();
         mode_B_IsFinished = true;
+        resultId_B = NOT_DISCOVERY;
       }
       break;
 
@@ -621,24 +635,24 @@ void after_moving() {
       Online_Mode_B = ROTATE;
       break;
     case ROTATE:
-      move_rotate_with_millis(HARF_ROTATE_TIME,true);
-      if(mode_C_IsFinished){
+      move_rotate_with_millis(HARF_ROTATE_TIME, true);
+      if (mode_C_IsFinished) {
         Online_Mode_B = FORWARD;
       }
       break;
     case FORWARD:
       move_forward(FIRST_FORWARD_TIME);
-      if(mode_C_IsFinished){
+      if (mode_C_IsFinished) {
         mode_B_IsFinished = true;
         Online_Mode_B = INIT;
       }
-      if(!(now_color_id == WHITE || now_color_id == OTHER)){
+      if (!(now_color_id == WHITE || now_color_id == OTHER)) {
         Online_Mode_B = BACK;
       }
       break;
     case BACK:
       move_back_to_rotate();
-      if(mode_D_IsFinished){
+      if (mode_D_IsFinished) {
         mode_B_IsFinished = true;
         Online_Mode_B = INIT;
       }
